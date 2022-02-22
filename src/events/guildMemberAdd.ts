@@ -1,26 +1,30 @@
-import { GuildMember, TextChannel } from 'discord.js';
+import { GuildMember, TextChannel, MessageAttachment } from 'discord.js';
+import generateImage from '../util/generate/generateWelcomeImage.js';
 import type { guild } from '../../index';
 import type FuriaBot from '../struct/discord/client';
+import _dirname from '../util/dirname.js';
+import path from 'path';
+
 
 export default {
     name: "guildMemberAdd",
     once: false,
-    execute: (member: GuildMember, client: FuriaBot) => {
-        const guild: guild = client.guildHandler.guildContents.filter(item => item.guildID === member.guild.id)[0];
-        if (guild?.welcome_c_id) {
-            let welcomeMsg: string;
-            welcomeMsg = guild?.welcome_msg
-                ? guild?.welcome_msg.search(/<@>/g) ? guild?.welcome_msg.replace(/<@>/g, `<@${member.id}>`) : guild?.welcome_msg
-                : `Welcome to **${guild.guildName}**, <@${member.id}>!`;
+    execute: async (member: GuildMember, client: FuriaBot) => {
 
-            const welcomeChannel = client.channels.cache.get(guild?.welcome_c_id) as TextChannel;
-            welcomeChannel.send({
-                embeds: [{
-                    color: '#22c55e',
-                    description: welcomeMsg
-                }]
-            })
-            return;
-        }
+        const guild: guild = client.guildHandler.guildContents.filter(item => item.guildID === member.guild.id)[0];
+        
+        if (!guild.welcome_c_id) return;
+
+        const welcomeChannel = client.channels.cache.get(guild.welcome_c_id);
+        if (welcomeChannel.type !== "GUILD_TEXT") return;
+
+        const welcomeImage: MessageAttachment = await generateImage(member);
+
+        welcomeChannel.send({
+          content: `<@${member.id}> Welcome to the server!`,
+          files: [welcomeImage]
+        })
+
     }
 }
+

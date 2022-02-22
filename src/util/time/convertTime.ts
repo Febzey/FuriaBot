@@ -61,6 +61,7 @@ export const getUnmuteTime = (durationString: string): Promise<number> => {
         switch (matches[2].toLowerCase()) {
             case "s":
             case "seconds":
+            case "second":
             case "secs":
             case "sec":
                 resolve(givenTime);
@@ -72,7 +73,7 @@ export const getUnmuteTime = (durationString: string): Promise<number> => {
             case "minutes":
                 resolve(givenTime * 60)
             
-                case "h":
+            case "h":
             case "hour":
             case "hours":
                 resolve(givenTime * 3600)
