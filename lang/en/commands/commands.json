@@ -12,7 +12,7 @@
                         "options": [
                             {
                                 "name": "toggle",
-                                "description": "toggle greeting / leave messages",
+                                "description": "Toggle join messages",
                                 "type": 1,
                                 "options": [
                                     {
@@ -33,38 +33,9 @@
                                     },
                                     {
                                         "name": "channel",
-                                        "description": "select the text channel you want me to welcome and dmismiss people in",
+                                        "description": "select the text channel you want me to welcome people in",
                                         "type": 7,
                                         "required": false
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "edit",
-                                "description": "edit the welcome / leave message",
-                                "type": 1,
-                                "options": [
-                                    {
-                                        "name": "option",
-                                        "description": "pick which message you want to edit.",
-                                        "type": 3,
-                                        "required": true,
-                                        "choices": [
-                                            {
-                                                "name": "welcome message",
-                                                "value": "welcome"
-                                            },
-                                            {
-                                                "name": "dismiss message",
-                                                "value": "dismiss"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "name": "message",
-                                        "description": "The message you would like the user to see when they join or leave",
-                                        "type": 3,
-                                        "required": true
                                     }
                                 ]
                             }

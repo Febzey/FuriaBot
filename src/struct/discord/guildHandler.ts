@@ -1,7 +1,8 @@
 import { monthYear }     from '../../util/time/time.js';
-import { db }            from '../../index.js';
+import { db, logger }            from '../../index.js';
 import type { guild }    from '../../../index';
 import type FuriaBot     from './client.js';
+
 
 export default class GuildHandler {
     public guildContents: Array<guild>;
@@ -44,6 +45,25 @@ export default class GuildHandler {
     }
 
     /**
+     * Setting the welcome message channel ID, this function is 
+     * called when a admin enables welcome / leave messages within
+     * their discord server.
+     */
+     updateWelcomeMessageId(guildID: string, channelID: string | boolean) {
+        return new Promise(resolve => {
+            db.query(
+                "USE discord; UPDATE guilds SET welcome_c_id = ? WHERE guildID = ?",
+                [channelID === false ? null : channelID, guildID],
+                err => {
+                    if (err) throw new Error(err.message)
+                    this.updateSpecificGuildContent(guildID);
+                    resolve(true);
+                }
+            )
+        })
+    }
+
+    /**
      * Updating a specific guild's contents in the guildContents array.
      * usually after we update a value in a row we will call this function
      * to have the most up to date data in our cache (this.guildContents)
@@ -74,36 +94,6 @@ export default class GuildHandler {
     }
 
 
-    /**
-     * Setting the welcome message channel ID, this function is 
-     * called when a admin enables welcome / leave messages within
-     * their discord server.
-     */
-    updateWelcomeMessageId(guildID: string, channelID: string | boolean) {
-        db.query(
-            "USE discord; UPDATE guilds SET welcome_c_id = ? WHERE guildID = ?",
-            [channelID === false ? null : channelID, guildID],
-            err => {
-                if (err) throw new Error(err.message)
-                return this.updateSpecificGuildContent(guildID);
-            }
-        )
-    }
-
-
-    /**
-     * Updating the welcome_msg row in the database,
-     * this is called when an admin sets their own custom
-     * welcome or leave message within their server.
-     */
-    updateWelcomeMessage(guildID: string, message: string, type: string) {
-        const row: string = type === "welcome" ? "welcome_msg" : "leave_msg";
-        db.query(
-            `USE discord; UPDATE guilds SET ${row} = ? WHERE guildID = ?`,
-            [message, guildID],
-            err => err ? console.error(err.message) : this.updateSpecificGuildContent(guildID)
-        )
-    }
 
     private timesUp = (duration: number) => {
         if (Date.now() / 1000 < duration) return false;
@@ -112,21 +102,25 @@ export default class GuildHandler {
 
     public liftSentence = async (guildId: string, userId: string, type: string) => {
         try {
+            
             const guild  = await this.client.guilds.fetch(guildId);
+        
             switch (type) {
+         
                 case "mute":
                     const member = await guild.members.fetch(userId);
                     await member.roles.remove(guild.roles.cache.find(role => role.name === "muted"));
                     db.query("USE discord; DELETE FROM muted WHERE guildID = ? AND mutedID = ?", [guildId, userId]);
-                    await member.send(`> ${this.client.Iemojis.success} You have been **unmuted** from the guild **${guild.name}** `).catch(() => {});
-                    break;
+                    return await member.send(`> ${this.client.Iemojis.success} You have been **unmuted** from the guild **${guild.name}** `).catch(() => {});  
+         
                 case "ban":
                     await guild.members.unban(userId).catch(() => {});
                     db.query("USE discord; DELETE FROM banned WHERE guildID = ? AND bannedID = ?", [guildId, userId]);
-                    break;
+                    return;
             }
+        
         }
-        catch { this.client.ErrorHandler.liftSentence(guildId, userId) };
+        catch { logger.liftSentence(guildId, userId) };
     }
 
     /**

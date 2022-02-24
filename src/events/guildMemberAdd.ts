@@ -21,7 +21,7 @@ export default {
         const welcomeImage: MessageAttachment = await generateImage(member);
 
         welcomeChannel.send({
-          content: `<@${member.id}> Welcome to the server!`,
+          content: `> <@${member.id}> Welcome to **${member.guild.name}**! You are member **#${member.guild.memberCount}**`,
           files: [welcomeImage]
         })
 

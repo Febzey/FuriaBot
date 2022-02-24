@@ -9,11 +9,12 @@ export default {
     execute: async (message: Message, client: FuriaBot) => {
         const { channel, author, content } = message;
         if (author.id === client.user.id) return;
-        if (channel.id !== "939001256951824385") return;
 
         if (channel.type === "DM") {
             client.users.fetch(ownerID).then(user => user.send(`${content} | **Sent by: ${user.tag}**`));
         }
+
+        if (channel.id !== "939001256951824385") return;
 
         if (content === "simjoin") {
             const member: GuildMember = await message.guild.members.fetch(ownerID);
@@ -21,7 +22,7 @@ export default {
             const image = await generateImage(member);
 
             return channel.send({
-                content: "Welcome to the server",
+                content: `> <@${member.id}> Welcome to **${member.guild.name}**! You are member **#${member.guild.memberCount}**`,
                 files: [image]
             })
 

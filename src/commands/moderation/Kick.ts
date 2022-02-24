@@ -19,6 +19,7 @@ export default {
         await user.send(`> ${client.Iemojis.error} You have been **Kicked** from the guild **${interaction.guild.name}** ${reason ? `\`reason:\` ${reason}` : ""}`).catch(() => {})
 
         try {
+            
             await member.kick();
             
             return interaction.reply({

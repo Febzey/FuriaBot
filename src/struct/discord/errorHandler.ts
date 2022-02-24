@@ -1,8 +1,10 @@
 import type { ButtonInteraction, CommandInteraction } from 'discord.js';
 import type FuriaBot from '../discord/client.js';
-import chalk from "chalk";
-
 type Iinteraction = CommandInteraction | ButtonInteraction;
+
+/**
+ * Types of error messages for the bot.
+ */
 
 export default class ErrorHandler {
     constructor(private client: FuriaBot) { };
@@ -33,9 +35,6 @@ export default class ErrorHandler {
         })
     }
 
-    liftSentence = (guildId: string, userId: string) =>
-        console.error(chalk.red(`Error while trying to to lift sentence for userID: ${userId} | guildId: ${guildId}`))
-
     durationFormat = (interaction: Iinteraction) => interaction.reply({
         content: `> ${this.client.Iemojis.error} The duration given was not in the correct format. Refer to \`/help\` for more info.`,
         ephemeral: true
@@ -54,6 +53,15 @@ export default class ErrorHandler {
             }]
         }]
     });
+
+    notEnabled = (interaction: Iinteraction) => interaction.reply({
+        content: `> ${this.client.Iemojis.error} This option is currently not enabled.`
+    })
+
+    notTextChannel = (interaction: Iinteraction) => interaction.reply({
+        content: `> ${this.client.Iemojis.error} The channel provided was not a **Text** channel.`,
+        ephemeral: true
+    })
 
     alreadyMuted = (interaction: Iinteraction) => interaction.reply({
         content: `> ${this.client.Iemojis.error} This user is already **muted**`,

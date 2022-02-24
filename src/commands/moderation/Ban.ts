@@ -46,7 +46,7 @@ export default {
 
         }
 
-        catch { return client.ErrorHandler.ban(interaction); }
+        catch { return client.ErrorHandler.ban(interaction) };
         
     }
 }

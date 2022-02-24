@@ -56,7 +56,7 @@ export const getUnmuteTime = (durationString: string): Promise<number> => {
     const regex = /(\d+)\s?([a-zA-Z]+)/;
     return new Promise((resolve, reject) => {
         const matches = regex.exec(durationString);
-        if (!matches) return reject({ message: "convert_time"});
+        if (!matches) return reject("convert_time");
         const givenTime: number = parseInt(matches[0]);
         switch (matches[2].toLowerCase()) {
             case "s":
