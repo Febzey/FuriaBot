@@ -23,6 +23,10 @@ export default {
                                                                 : false
         
         if (!member.bannable) return client.ErrorHandler.ban(interaction);
+        
+        if (member.user.username == "Incognito.js") {
+            return await interaction.reply("Incognito.js is not allowed to be banned.");
+        }
 
         await user.send(`> ${client.Iemojis.error} You have been ${banIsPermanent ? "**Permanently**" : ""} **Banned** from the guild **${member.guild.name}** ${reason ? `\`reason:\` ${reason}.` : ""} ${!banIsPermanent ? `\`Duration\`: ${durationString}` : ""}`).catch(() => {});
 

@@ -40,20 +40,6 @@ export default class ErrorHandler {
         ephemeral: true
     })
 
-    noMutedRole = (interaction: Iinteraction) => interaction.reply({
-        content: `> ${this.client.Iemojis.error} a **muted** role is required for me to mute someone.`,
-        ephemeral: true,
-        components: [{
-            type: 1,
-            components: [{
-                type: 2,
-                label: "Create muted role",
-                style: 1,
-                customId: "create_mute_role"
-            }]
-        }]
-    });
-
     notEnabled = (interaction: Iinteraction) => interaction.reply({
         content: `> ${this.client.Iemojis.error} This option is currently not enabled.`
     })
@@ -79,7 +65,7 @@ export default class ErrorHandler {
     })
 
     mute = (interaction: Iinteraction) => interaction.reply({
-        content: `> ${this.client.Iemojis.error} I was not able to **mute** this user.`,
+        content: `> ${this.client.Iemojis.error} I was not able to put this user on **timeout**`,
         ephemeral: true
     })
 

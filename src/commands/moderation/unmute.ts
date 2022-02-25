@@ -12,7 +12,7 @@ export default {
         client.guildHandler.liftSentence(member.guild.id, member.user.id, "mute")
 
         return interaction.reply({
-            content: `> ${client.Iemojis.success} <@${member.id}> has been **unmuted**`,
+            content: `> ${client.Iemojis.success} lifted **timeout** for <@${member.id}>`,
             ephemeral: true
         })
     }

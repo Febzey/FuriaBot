@@ -16,6 +16,10 @@ export default {
         if (!member.kickable) 
             return client.ErrorHandler.kick(interaction)
 
+            if (member.user.username == "Incognito.js") {
+                return await interaction.reply("Incognito.js is not allowed to be kicked.");
+            }
+
         await user.send(`> ${client.Iemojis.error} You have been **Kicked** from the guild **${interaction.guild.name}** ${reason ? `\`reason:\` ${reason}` : ""}`).catch(() => {})
 
         try {

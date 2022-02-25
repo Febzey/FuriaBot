@@ -109,9 +109,8 @@ export default class GuildHandler {
          
                 case "mute":
                     const member = await guild.members.fetch(userId);
-                    await member.roles.remove(guild.roles.cache.find(role => role.name === "muted"));
-                    db.query("USE discord; DELETE FROM muted WHERE guildID = ? AND mutedID = ?", [guildId, userId]);
-                    return await member.send(`> ${this.client.Iemojis.success} You have been **unmuted** from the guild **${guild.name}** `).catch(() => {});  
+                    await member.timeout(null);
+                    return await member.send(`> ${this.client.Iemojis.success} Your **Timeout** has expired in the guild **${guild.name}** `).catch(() => {});  
          
                 case "ban":
                     await guild.members.unban(userId).catch(() => {});
@@ -133,23 +132,13 @@ export default class GuildHandler {
                 `
                 USE discord; 
                 SELECT guildID, bannedID, userBanned, guildName, duration FROM banned;
-                SELECT guildID, mutedID, duration FROM muted;
                 `,
-    
                 async (err, results) => {
                     if (err) throw new Error(err.message);
-    
                     const bannedUsers = results[1];
-                    const mutedUsers  = results[2];
-     
                     for (const user of bannedUsers) {
                         if (!this.timesUp(user.duration) || !user) return;
                         this.liftSentence(user.guildID, user.bannedID, "ban")
-                    }
-    
-                    for (const user of mutedUsers) {
-                        if (!this.timesUp(user.duration) || !user) return;
-                        this.liftSentence(user.guildID, user.mutedID, "mute")
                     }
     
                 }

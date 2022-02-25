@@ -52,6 +52,11 @@ export const durationChoiceConvert = (durationChoice: string) => {
 
 }
 
+
+/**
+ * Returns the number of seconds for correct format.
+ */
+
 export const getUnmuteTime = (durationString: string): Promise<number> => {
     const regex = /(\d+)\s?([a-zA-Z]+)/;
     return new Promise((resolve, reject) => {
@@ -74,16 +79,17 @@ export const getUnmuteTime = (durationString: string): Promise<number> => {
                 resolve(givenTime * 60)
             
             case "h":
+            case "hr":
             case "hour":
             case "hours":
                 resolve(givenTime * 3600)
             
-                case "d":
+            case "d":
             case "days":
             case "day":
                 resolve(givenTime * 86400)
             
-                case "weeks":
+            case "weeks":
             case "week":
             case "w":
                 resolve(givenTime * 604800)
