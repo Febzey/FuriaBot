@@ -26,7 +26,7 @@ export default {
 
             const muteTime = await getUnmuteTime(duration);
             await member.roles.add(mutedRole);
-            await member.send(`> ${client.Iemojis.error} You have been **muted** in the guild **${member.guild.name}** ${reason ? `\`reason:\` ${reason}.` : ""} ${duration ? `\`duration:\` ${duration}` : ""}`)
+            await member.send(`> ${client.Iemojis.error} You have been **muted** in the guild **${member.guild.name}** ${reason ? `\`reason:\` ${reason}.` : ""} ${duration ? `\`duration:\` ${duration}` : ""}`).catch(() => {});
             
             db.query(
                 "USE discord; INSERT IGNORE into muted (guildID, mutedID, reason, duration) VALUES(?,?,?,?)",
