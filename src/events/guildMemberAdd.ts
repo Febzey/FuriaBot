@@ -1,17 +1,15 @@
 import { GuildMember, TextChannel, MessageAttachment } from 'discord.js';
-import generateImage from '../util/generate/generateWelcomeImage.js';
-import type { guild } from '../../index';
-import type FuriaBot from '../struct/discord/client';
-import _dirname from '../util/dirname.js';
-import path from 'path';
+import generateImage                                   from '../util/generate/generateWelcomeImage.js';
+import type { guild }                                  from '../../index';
+import type FuriaBot                                   from '../struct/discord/client';
+import _dirname                                        from '../util/dirname.js';
 
 
 export default {
     name: "guildMemberAdd",
     once: false,
     execute: async (member: GuildMember, client: FuriaBot) => {
-
-        const guild: guild = client.guildHandler.guildContents.filter(item => item.guildID === member.guild.id)[0];
+        const guild: guild = await client.guildHandler.getCurrentGuild(member.guild.id)
         
         if (!guild.welcome_c_id) return;
 
@@ -20,7 +18,7 @@ export default {
 
         const welcomeImage: MessageAttachment = await generateImage(member);
 
-        welcomeChannel.send({
+        return welcomeChannel.send({
           content: `> <@${member.id}> Welcome to **${member.guild.name}**! You are member **#${member.guild.memberCount}**`,
           files: [welcomeImage]
         })

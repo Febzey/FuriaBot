@@ -9,6 +9,11 @@ type Iinteraction = CommandInteraction | ButtonInteraction;
 export default class ErrorHandler {
     constructor(private client: FuriaBot) { };
 
+    unexpected = (interaction: Iinteraction) => interaction.reply({
+        content: `> ${this.client.Iemojis.error} An unexpected error occurred, if this continues, join our support discord. \`/support\``,
+        ephemeral: true,
+    })
+
     roleExists = (interaction: Iinteraction, role: string) => interaction.reply({
         content: `> ${this.client.Iemojis.error} The role **${role}** already exists within this guild.`,
         ephemeral: true

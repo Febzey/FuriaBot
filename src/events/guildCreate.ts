@@ -18,7 +18,7 @@ export default {
             return await user.send({
                 embeds: [{
                     color: '#ec4899',
-                    description: "Hey, **thank you** for inviting me to your server! To get started use the `/help` or `/setup` command withing your server. Still stuck? Join the support discord for quick help. 😺"
+                    description: "Hey, **thank you** for inviting me to your server! 😺"
                 }],
                 components: [{
                     type: 1,

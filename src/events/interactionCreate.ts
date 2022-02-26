@@ -1,4 +1,4 @@
-import { Interaction, Permissions, GuildMember } from 'discord.js';
+import { Interaction } from 'discord.js';
 import buttonHandler                             from '../functions/interactionHandlers/ButtonHandler.js';
 import commandHandler                            from '../functions/interactionHandlers/CommandHandler.js'
 import type FuriaBot                             from '../struct/discord/client.js'

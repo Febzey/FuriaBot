@@ -4,7 +4,7 @@ import type { guild }              from '../../../index';
 import type FuriaBot               from '../../struct/discord/client.js';
 
 export default {
-    permissions: ["MANAGE_ROLES"],
+    permissions: ["MODERATE_MEMBERS"],
     data: en_text.command.unmute.data,
     run: async (interaction: CommandInteraction, guild: guild, client: FuriaBot) => {
         const member = await interaction.guild.members.fetch(interaction.options.getUser("user"))

@@ -1,0 +1,24 @@
+{ 
+    "all": [
+        { 
+            "activity": "for /warn",
+            "type": "WATCHING"
+        },
+        { 
+            "activity": "for /info",
+            "type": "WATCHING"
+        },
+        {
+            "activity": "for spammers",
+            "type": "WATCHING"
+        },
+        {
+            "activity": "for /help",
+            "type": "WATCHING"
+        },
+        {
+            "activity": "for commands",
+            "type": "WATCHING"
+        }
+    ]
+}

@@ -6,12 +6,12 @@
                 "description": "Configure me for your needs.",
                 "options": [
                     {
-                        "name": "greetings",
-                        "description": "configure the greeting settings.",
+                        "name": "toggle",
+                        "description": "enable or disable certain features",
                         "type": 2,
                         "options": [
                             {
-                                "name": "toggle",
+                                "name": "greetings",
                                 "description": "Toggle join messages",
                                 "type": 1,
                                 "options": [
@@ -38,8 +38,57 @@
                                         "required": false
                                     }
                                 ]
+                            },
+                            {
+                                "name": "antispam",
+                                "description": "Toggle the anti spam",
+                                "type": 1,
+                                "options": [
+                                    {
+                                        "name": "option",
+                                        "description": "Enable or disable",
+                                        "type": 3,
+                                        "required": true,
+                                        "choices": [
+                                            {
+                                                "name": "enable",
+                                                "value": "enable"
+                                            },
+                                            {
+                                                "name": "disable",
+                                                "value": "disable"
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
                         ]
+                    }
+                ]
+            }
+        },
+        "info": {
+            "data": {
+                "name": "info",
+                "description": "Get information about certain things.",
+                "options": [
+                    {
+                        "name": "user",
+                        "description": "select the user you want info on",
+                        "type": 1,
+                        "options": [
+                            {
+                                "name": "user",
+                                "description": "select the user you want info on",
+                                "type": 6,
+                                "required": true
+                            }
+                        ]
+                    },
+                    {
+                        "name": "server",
+                        "description": "get info about this discord server",
+                        "type": 1
                     }
                 ]
             }
@@ -220,11 +269,17 @@
                 ]
             }
         },
-        "cat": {
+        "clearchat": {
             "data": {
-                "name": "cat",
+                "name": "purge",
                 "type": 1,
-                "description": "Get a random cat image."
+                "description": "clear messages from chat",
+                "options": [{
+                    "name": "amount",
+                    "description": "Specify the amount of messages to delete.",
+                    "type": 3,
+                    "required": true
+                }]
             }
         }
     }

@@ -1,13 +1,24 @@
-import { monthYear }     from '../../util/time/time.js';
-import { db, logger }            from '../../index.js';
-import type { guild }    from '../../../index';
-import type FuriaBot     from './client.js';
-
+import { monthYear }                          from '../../util/time/time.js';
+import { db, logger }                         from '../../index.js';
+import type { guild }                         from '../../../index';
+import type FuriaBot                          from './client.js';
+import type { ActivityType, ActivityOptions } from 'discord.js';
 
 export default class GuildHandler {
     public guildContents: Array<guild>;
-
     constructor(private client: FuriaBot) { };
+
+    /**
+     * Handle bot's activity status.
+     */
+    clientActivity() {
+        const presencesArray = this.client.presences.all;
+        setInterval(() => {
+            const presence = presencesArray[Math.floor(Math.random()*presencesArray.length)]
+            this.client.user.setActivity(presence.activity, { type: presence.type } as ActivityOptions);
+        }, 5 * 60000);
+    }
+
 
     /**
      * Getting all guilds that are stored in the database then
@@ -22,6 +33,13 @@ export default class GuildHandler {
                     resolve(this.guildContents = results[1])
                 }
                 )
+        })
+    }
+
+    getCurrentGuild(guildId: string): Promise<guild> {
+        return new Promise(resolve => {
+            let thisGuild: guild = this.guildContents.filter(item => item.guildID === guildId)[0];
+            resolve(thisGuild);
         })
     }
 
@@ -63,6 +81,30 @@ export default class GuildHandler {
         })
     }
 
+
+    /**
+     * Enabling or disabling anti spam within a guild.
+     */
+    toggleAntiSpam(guildID: string, option: String) {
+        return new Promise((resolve,reject) => {
+            const opt: number = option === "enable" ? 1 : 0
+            db.query(
+                "USE discord; UPDATE guilds SET anti_spam = ? WHERE guildID = ?",
+                [opt, guildID],
+                err => {
+                    if (err) {
+                        console.log(err)
+                        return reject();
+                    }
+                    this.updateSpecificGuildContent(guildID);
+                    resolve(opt);
+                }
+            )
+        })
+
+    }
+
+
     /**
      * Updating a specific guild's contents in the guildContents array.
      * usually after we update a value in a row we will call this function
@@ -92,8 +134,6 @@ export default class GuildHandler {
             err => err ? console.error(err.message) : this.getAllGuildContent()
         )
     }
-
-
 
     private timesUp = (duration: number) => {
         if (Date.now() / 1000 < duration) return false;
@@ -140,13 +180,8 @@ export default class GuildHandler {
                         if (!this.timesUp(user.duration) || !user) return;
                         this.liftSentence(user.guildID, user.bannedID, "ban")
                     }
-    
                 }
-    
             )
         }, 5000);
-
     }
-
-
 }
