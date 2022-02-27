@@ -1,12 +1,11 @@
 import { en_text}                  from '../../struct/config.js';
 import type { CommandInteraction } from 'discord.js';
-import type { guild }              from '../../../index';
 import type FuriaBot               from '../../struct/discord/client.js';
 
 export default {
     permissions: ["MANAGE_MESSAGES"],
     data: en_text.command.clearchat.data,
-    run: async (interaction: CommandInteraction, guild: guild, client: FuriaBot) => {
+    run: async (interaction: CommandInteraction, client: FuriaBot) => {
 
         const amount = interaction.options.getString("amount");
 

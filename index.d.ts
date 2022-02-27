@@ -19,3 +19,11 @@ export type MuteOptions = {
     reason?:     string,
     duration?:   string
 }
+
+export type UserHistory = {
+    guild_id:   string, 
+    user_id:    string, 
+    warns:      number, 
+    bans:       number, 
+    muted:      number
+}

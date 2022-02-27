@@ -220,45 +220,7 @@
                         "name": "duration",
                         "description": "how long you want to ban the user for.",
                         "type": 3,
-                        "required": true,
-                        "choices": [
-                            {
-                                "name": "1 day",
-                                "value": "1d"
-                            },
-                            {
-                                "name": "2 days",
-                                "value": "2d"
-                            },
-                            {
-                                "name": "3 days",
-                                "value": "3d"
-                            },
-                            {
-                                "name": "4 days",
-                                "value": "4d"
-                            },
-                            {
-                                "name": "5 days",
-                                "value": "4d"
-                            },
-                            {
-                                "name": "6 days",
-                                "value": "6d"
-                            },
-                            {
-                                "name": "7 days",
-                                "value": "7d"
-                            },
-                            {
-                                "name": "2 weeks",
-                                "value": "2w"
-                            },
-                            {
-                                "name": "Permanently",
-                                "value": "perm"
-                            }
-                        ]
+                        "required": false
                     },
                     {
                         "name": "reason",

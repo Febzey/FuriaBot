@@ -1,6 +1,6 @@
 import { monthYear }                          from '../../util/time/time.js';
 import { db, logger }                         from '../../index.js';
-import type { guild }                         from '../../../index';
+import type { guild, UserHistory }            from '../../../index';
 import type FuriaBot                          from './client.js';
 import type { ActivityType, ActivityOptions } from 'discord.js';
 
@@ -183,5 +183,22 @@ export default class GuildHandler {
                 }
             )
         }, 5000);
+    }
+
+
+    /**
+     * Getting user row from users table.
+     */
+
+    getUser(guildId: string, userId: string): Promise<Array<UserHistory>|any[]> {
+        return new Promise(resolve => {
+            db.query("USE discord; SELECT * FROM users WHERE guild_id = ? and user_id = ?",
+                [guildId, userId],
+                (err, results) => {
+                    if (err) throw new Error(err.message);
+                    return resolve(results[1]);
+                }
+            )
+        })
     }
 }

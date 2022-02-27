@@ -6,7 +6,7 @@ import type { guild }              from '../../../index';
 export default {
     permissions: "KICK_MEMBERS",
     data: en_text.command.kick.data,
-    run: async (interaction: CommandInteraction, guild: guild, client: FuriaBot) => {
+    run: async (interaction: CommandInteraction, client: FuriaBot) => {
         
         const reason         = interaction.options.getString("reason");
         const silent         = interaction.options.getString("silent");
@@ -15,10 +15,6 @@ export default {
 
         if (!member.kickable) 
             return client.ErrorHandler.kick(interaction)
-
-            if (member.user.username == "Incognito.js") {
-                return await interaction.reply("Incognito.js is not allowed to be kicked.");
-            }
 
         await user.send(`> ${client.Iemojis.error} You have been **Kicked** from the guild **${interaction.guild.name}** ${reason ? `\`reason:\` ${reason}` : ""}`).catch(() => {})
 

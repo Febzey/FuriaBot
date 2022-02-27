@@ -18,7 +18,7 @@ export default {
             return await user.send({
                 embeds: [{
                     color: '#ec4899',
-                    description: "Hey, **thank you** for inviting me to your server! 😺"
+                    description: "Hey, **thank you** for inviting me to your server, to learn how I work, use `/help` in a channel. 😺"
                 }],
                 components: [{
                     type: 1,

@@ -11,7 +11,8 @@ export default {
     execute: async (member: GuildMember, client: FuriaBot) => {
         const guild: guild = await client.guildHandler.getCurrentGuild(member.guild.id)
         
-        if (!guild.welcome_c_id) return;
+        if (!guild) return;
+        if (!guild.welcome_c_id || member.user.bot) return;
 
         const welcomeChannel = client.channels.cache.get(guild.welcome_c_id);
         if (welcomeChannel.type !== "GUILD_TEXT") return;

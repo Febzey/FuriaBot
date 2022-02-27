@@ -4,7 +4,6 @@ import type { guild }                           from '../../../index';
 
 export default async function commandHandler(interaction: CommandInteraction, client: FuriaBot, member: GuildMember) {
 
-    const thisGuild: guild   = await client.guildHandler.getCurrentGuild(interaction.guild.id);
     let { permissions, run } = client.commandCollection.get(interaction.commandName).default;
 
     if (permissions) {
@@ -19,6 +18,6 @@ export default async function commandHandler(interaction: CommandInteraction, cl
         }
     }
 
-    return run(interaction, thisGuild, client);
+    return run(interaction, client);
 
 }

@@ -7,7 +7,9 @@ import type FuriaBot                   from '../../struct/discord/client.js';
 export default {
     permissions: ["ADMINISTRATOR"],
     data: en_text.command.config.data,
-    run: async (interaction: CommandInteraction, guild: guild, client: FuriaBot) => {
+    run: async (interaction: CommandInteraction, client: FuriaBot) => {
+
+        const guild: guild = await client.guildHandler.getCurrentGuild(interaction.guild.id);
 
         let choice:  String;
         let channel: Channel;

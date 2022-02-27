@@ -19,7 +19,7 @@ import path                    from 'path';
 class Iemojis {
     error   = "<:error:940632365921873980>";
     success = "<a:success:940632460193067059>";
-    cake    = "<:cake:947111316529774623>";
+    cake    = "<:cake:947297119843282965>";
 }
 
 export default class FuriaBot extends Client {
@@ -45,10 +45,10 @@ export default class FuriaBot extends Client {
         this.presences         = presences;
 
         this.on("ready", async () => {
+            logger.discordReady(this.user.tag);
             this.handleEvents();
             await this.loadCommands();
             await this.guildHandler.getAllGuildContent();
-            logger.discordReady(this.user.tag);
             this.guildHandler.handleSentenceTime();
             this.guildHandler.clientActivity();
             this.user.setActivity("for commands", {type: "WATCHING"})
