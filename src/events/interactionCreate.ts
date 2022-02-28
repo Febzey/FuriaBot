@@ -7,8 +7,7 @@ export default {
     name: "interactionCreate",
     once: false,
     execute: async (interaction: Interaction, client: FuriaBot) => {
-        const member = await interaction.guild.members.fetch(interaction.user.id);
         if (interaction.isButton())  return buttonHandler(interaction, client);
-        if (interaction.isCommand()) return commandHandler(interaction, client, member);
+        if (interaction.isCommand()) return commandHandler(interaction, client);
     }
 }

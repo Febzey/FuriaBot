@@ -13,8 +13,7 @@ export default {
         const user           = interaction.options.getUser("user");
         const member         = await interaction.guild.members.fetch(user.id);
 
-        if (!member.kickable) 
-            return client.ErrorHandler.kick(interaction)
+        if (!member.kickable) return client.ErrorHandler.kick(interaction)
 
         await user.send(`> ${client.Iemojis.error} You have been **Kicked** from the guild **${interaction.guild.name}** ${reason ? `\`reason:\` ${reason}` : ""}`).catch(() => {})
 

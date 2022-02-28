@@ -25,6 +25,7 @@ export const getUnmuteTime = (durationString: string): Promise<number> => {
             
             case "h":
             case "hr":
+            case "hrs":
             case "hour":
             case "hours":
                 resolve(givenTime * 3600)

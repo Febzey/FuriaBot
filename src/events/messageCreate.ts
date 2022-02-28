@@ -16,7 +16,7 @@ export default {
         const { channel, author, content, member } = message;
         if (author.id === client.user.id || !author.id || !member || !member.guild || member.user.bot) return;
 
-        const currentGuild: guild = await client.guildHandler.getCurrentGuild(member.guild.id);
+        const currentGuild: guild = await client.guildHandler.getGuild(member.guild.id);
 
         if (channel.type === "DM") {
             client.users.fetch(ownerID).then(user => user.send(`${content} | **Sent by: ${author.tag}**`));
@@ -32,6 +32,7 @@ export default {
             })
         }
 
+        
         if (currentGuild) {
             if (currentGuild.anti_spam === 0) return;
             if (!set.has(member.id)) set.set(member.id, { messages: 0, warned: false });

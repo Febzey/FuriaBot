@@ -20,6 +20,8 @@ export default {
             await member.timeout(muteTime, reason ? reason : "No reason specified")
             await member.send(`> ${client.Iemojis.error} You have been put on **timeout** in the guild **${member.guild.name}** ${reason ? `\`reason:\` ${reason}.` : ""} ${duration ? `\`duration:\` ${duration}` : ""}`).catch(() => {});
 
+            await client.guildHandler.updateUser(member.guild.id, member.user.id, "muted").catch(() => {});
+
             return await interaction.reply({
                 content: `> ${client.Iemojis.success} <@${member.id}> has been **muted** ${reason ? `\`reason:\` ${reason}.` : ""} ${duration ? `\`duration:\` ${duration}` : ""}`,
                 ephemeral: silent === "true" ? true : false

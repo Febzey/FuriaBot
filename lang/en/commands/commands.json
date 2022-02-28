@@ -151,6 +151,27 @@
                 ]
             }            
         },
+        "warn": {
+            "data": {
+                "name": "warn",
+                "type": 1,
+                "description": "warn a user about their actions. I will send them a direct message",
+                "options": [
+                    {
+                        "name": "user",
+                        "description": "the user you would like to unmute",
+                        "type": 6,
+                        "required": true
+                    },
+                    {
+                        "name": "reason",
+                        "description": "the reason for warning the user",
+                        "type": "3",
+                        "required": true
+                    }
+                ]
+            }            
+        },
         "kick": {
             "data": {
                 "name": "kick",
@@ -242,6 +263,13 @@
                     "type": 3,
                     "required": true
                 }]
+            }
+        },
+        "help": {
+            "data": {
+                "name": "help",
+                "type": 1,
+                "description": "get help with learning how I work"
             }
         }
     }

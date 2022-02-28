@@ -46,7 +46,8 @@ export default class ErrorHandler {
     })
 
     notEnabled = (interaction: Iinteraction) => interaction.reply({
-        content: `> ${this.client.Iemojis.error} This option is currently not enabled.`
+        content: `> ${this.client.Iemojis.error} This option is currently not enabled.`,
+        ephemeral: true
     })
 
     notTextChannel = (interaction: Iinteraction) => interaction.reply({

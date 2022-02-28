@@ -2,7 +2,9 @@ import type { CommandInteraction, GuildMember } from 'discord.js';
 import type FuriaBot                            from '../../struct/discord/client';
 import type { guild }                           from '../../../index';
 
-export default async function commandHandler(interaction: CommandInteraction, client: FuriaBot, member: GuildMember) {
+export default async function commandHandler(interaction: CommandInteraction, client: FuriaBot) {
+
+    const member:GuildMember = await interaction.guild.members.fetch(interaction.user.id);
 
     let { permissions, run } = client.commandCollection.get(interaction.commandName).default;
 

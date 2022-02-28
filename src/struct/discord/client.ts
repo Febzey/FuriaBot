@@ -20,7 +20,8 @@ class Iemojis {
     error   = "<:error:940632365921873980>";
     success = "<a:success:940632460193067059>";
     cake    = "<:cake:947297119843282965>";
-}
+    warning = "<a:warning:947512217585213450>";
+};
 
 export default class FuriaBot extends Client {
 
@@ -48,7 +49,7 @@ export default class FuriaBot extends Client {
             logger.discordReady(this.user.tag);
             this.handleEvents();
             await this.loadCommands();
-            await this.guildHandler.getAllGuildContent();
+            await this.guildHandler.getAllGuildContent().catch(console.error);
             this.guildHandler.handleSentenceTime();
             this.guildHandler.clientActivity();
             this.user.setActivity("for commands", {type: "WATCHING"})

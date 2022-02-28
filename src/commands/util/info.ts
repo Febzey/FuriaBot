@@ -3,7 +3,6 @@ import type { CommandInteraction, GuildMember, Guild } from 'discord.js';
 import type FuriaBot from '../../struct/discord/client.js';
 import type { UserHistory } from '../../../index';
 import { timeAgoStr, dateTimeString } from '../../util/time/time.js';
-import { db } from '../../index.js';
 
 
 export default {
@@ -12,7 +11,7 @@ export default {
     run: async (interaction: CommandInteraction, client: FuriaBot) => {
 
         //@ts-ignore 
-        const isAdmin    = interaction.member.permissions.has("ADMINISTRATOR")
+        const isMod      = interaction.member.permissions.has("BAN_MEMBERS")
         const subCommand = interaction.options.getSubcommand()
         
         const userEmbed = (member: GuildMember, userHistory?: Array<UserHistory>|any[]) => {
@@ -37,7 +36,7 @@ export default {
                         value: `> ${timeAgoStr(member.joinedTimestamp)} / ${dateTimeString(member.joinedTimestamp)}`,
                         inline: false
                     },
-                    isAdmin ? {
+                    isMod ? {
                         name: "History",
                         value: `> **Warnings:** ${userStat.warns} \n> **Bans:** ${userStat.bans} \n> **Times muted:** ${userStat.muted}`,
                         inline: false
@@ -81,6 +80,7 @@ export default {
 
 
         switch (subCommand) {
+         
             case "user":
                 const user   = interaction.options.getUser("user");
                 const member = await interaction.guild.members.fetch(user.id);

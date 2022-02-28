@@ -25,20 +25,44 @@ export default class GuildHandler {
      * pushing the contents to the guildContents array.
      */
     getAllGuildContent() {
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
             db.query(
                 "USE discord; SELECT * FROM guilds",
                 (err, results) => {
-                    if (err) throw new Error(err.message);
+                    if (err) return reject(err.message);
                     resolve(this.guildContents = results[1])
                 }
                 )
         })
     }
 
-    getCurrentGuild(guildId: string): Promise<guild> {
-        return new Promise(resolve => {
-            let thisGuild: guild = this.guildContents.filter(item => item.guildID === guildId)[0];
+
+    /**
+     * Inserting a new guild into the database
+     * when the bot is invited to a new guild.
+     */
+     insertGuild(guildID: string) {
+        return new Promise((resolve, reject) => {
+            db.query(
+                "USE discord; INSERT INTO guilds (guildID, created_at) VALUES (?,?)",
+                [guildID, monthYear()],
+                async err => {
+                    if (err) return reject(err.message);
+                    await this.getAllGuildContent()
+                    resolve(true);
+                }
+            )
+        })
+    }
+
+
+    /**
+     * Get specific guild from guildContents array.
+     */
+    getGuild(guildId: string): Promise<guild> {
+        return new Promise(async resolve => {
+            let thisGuild: guild = this.guildContents.filter(item => item.guildID ? item.guildID === guildId : null)[0];
+            if (!thisGuild) await this.insertGuild(guildId)
             resolve(thisGuild);
         })
     }
@@ -49,12 +73,12 @@ export default class GuildHandler {
      * @returns boolean
      */
     guildExists(guildId: string) {
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
             console.log(guildId)
             db.query(
                 "USE discord; SELECT * FROM guilds WHERE guildID = ?",
                 [guildId], (err, results) => {
-                    if (err) throw new Error(err.message);
+                    if (err) return reject(err.message)
                     results[1].length === 0 ? resolve(false) : resolve(true);
                 }
             )
@@ -68,12 +92,12 @@ export default class GuildHandler {
      * their discord server.
      */
      updateWelcomeMessageId(guildID: string, channelID: string | boolean) {
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
             db.query(
                 "USE discord; UPDATE guilds SET welcome_c_id = ? WHERE guildID = ?",
                 [channelID === false ? null : channelID, guildID],
                 err => {
-                    if (err) throw new Error(err.message)
+                    if (err) return reject(err.message)
                     this.updateSpecificGuildContent(guildID);
                     resolve(true);
                 }
@@ -92,10 +116,7 @@ export default class GuildHandler {
                 "USE discord; UPDATE guilds SET anti_spam = ? WHERE guildID = ?",
                 [opt, guildID],
                 err => {
-                    if (err) {
-                        console.log(err)
-                        return reject();
-                    }
+                    if (err) return reject(err.message);
                     this.updateSpecificGuildContent(guildID);
                     resolve(opt);
                 }
@@ -122,18 +143,6 @@ export default class GuildHandler {
         )
     }
 
-
-    /**
-     * Inserting a new guild into the database
-     * when the bot is invited to a new guild.
-     */
-    insertGuild(guildID: string, guildName: string, ownerName: string) {
-        db.query(
-            "USE discord; INSERT INTO guilds (guildID, guildName, ownerName, created_at) VALUES (?,?,?,?)",
-            [guildID, guildName, ownerName, monthYear()],
-            err => err ? console.error(err.message) : this.getAllGuildContent()
-        )
-    }
 
     private timesUp = (duration: number) => {
         if (Date.now() / 1000 < duration) return false;
@@ -189,7 +198,6 @@ export default class GuildHandler {
     /**
      * Getting user row from users table.
      */
-
     getUser(guildId: string, userId: string): Promise<Array<UserHistory>|any[]> {
         return new Promise(resolve => {
             db.query("USE discord; SELECT * FROM users WHERE guild_id = ? and user_id = ?",
@@ -200,5 +208,43 @@ export default class GuildHandler {
                 }
             )
         })
+    }
+
+    /**
+     * Updating certain things in the users row,
+     * will create a new row if doesnts exist.
+     */
+    updateUser(guildId: string, userId: string, type: string) {
+        return new Promise((resolve, reject) => {
+            db.query("USE discord; SELECT user_id FROM users WHERE guild_id = ? AND user_id = ?",
+            [guildId, userId],
+            (err, results) => {
+                if (err) reject(err.message);
+
+                results[1].length === 0
+                ? db.query(
+                    `USE discord; 
+                     INSERT IGNORE INTO users (guild_id, user_id, warns, bans, muted) VALUES(?,?,?,?,?);
+                     UPDATE users SET ${type} = ${type} + 1 WHERE user_id = ? and guild_id = ?;
+                     `,
+                    [guildId, userId, 0, 0, 0, userId, guildId],
+                    err => {
+                        if (err) return reject(err.message);
+                        resolve(true);
+                    }
+                )
+                : db.query(`USE discord; UPDATE users SET ${type} = ${type} + 1 WHERE user_id = ? AND guild_id = ?`,
+                    [userId, guildId],
+                    err => {
+                        if (err) return reject(err.message);
+                        resolve(true)
+                    }
+                )
+
+            }
+        )
+        })
+
+
     }
 }

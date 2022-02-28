@@ -7,15 +7,14 @@ export default {
     once: false,
     execute: async (guild: Guild, client: FuriaBot) => {
        
-        const user              = await client.users.fetch(guild.ownerId).catch(console.error) as User;
-        const ownerName: string = `${user.username}${user.discriminator}`;
-        const guildExists       = await client.guildHandler.guildExists(guild.id);
+        const user        = await client.users.fetch(guild.ownerId).catch(console.error) as User;
+        const guildExists = await client.guildHandler.guildExists(guild.id).catch(() => {});
 
         if (!guildExists) {
-            client.guildHandler.insertGuild(guild.id, guild.name, ownerName)
+            client.guildHandler.insertGuild(guild.id)
             logger.newGuildJoined(guild);
 
-            return await user.send({
+            await user.send({
                 embeds: [{
                     color: '#ec4899',
                     description: "Hey, **thank you** for inviting me to your server, to learn how I work, use `/help` in a channel. 😺"
@@ -30,6 +29,8 @@ export default {
                 }]
 
             }).catch(() => {})
+
+            return;
 
         }
         return logger.GuildJoined(guild);
