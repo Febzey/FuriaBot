@@ -12,8 +12,7 @@ export default class ModActionLogger {
     getLogChannel = async (guild_id: string) => { 
         const guild      = await this.client.guilds.fetch(guild_id);
         const logChannel = guild.channels.cache.find(channel => channel.name === this.logChannelName);
-        if (!logChannel || logChannel.type !== "GUILD_TEXT") 
-            return false;
+        if (!logChannel || logChannel.type !== "GUILD_TEXT") return false;
         return logChannel;
     }    
 

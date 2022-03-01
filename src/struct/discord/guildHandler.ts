@@ -84,15 +84,15 @@ export default class GuildHandler {
     /**
      * Get specific guild from GuildsCache map
      */
-    getGuild(guildId: string): Promise<guild> {
-        return new Promise(async resolve => {
-            let thisGuild: guild = this.GuildsCache.get(guildId);
-            if (!thisGuild) {
-                await this.insertGuild(guildId).catch(() => {})
-            }
-            resolve(thisGuild);
-        })
-    }
+    // getGuild(guildId: string): Promise<guild> {
+    //     return new Promise(async resolve => {
+    //         let thisGuild: guild = this.GuildsCache.get(guildId);
+    //         if (!thisGuild) {
+    //             await this.insertGuild(guildId).catch(() => {})
+    //         }
+    //         resolve(thisGuild);
+    //     })
+    // }
 
     /**
      * 
@@ -277,7 +277,7 @@ export default class GuildHandler {
     */
     async atMaxWarnings(guildId: string, userId: string) {
         const user        = await this.getUser(guildId, userId);
-        const guild_local = await this.getGuild(guildId);
+        const guild_local = this.GuildsCache.get(guildId);
 
         if (!user[0] || !guild_local) return;
 

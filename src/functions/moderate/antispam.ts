@@ -22,15 +22,16 @@ export async function antiSpam(
         if (messageCount === 10 && user[0] === member.id) {
             await client.guildHandler.updateUser(member.guild.id, member.user.id, "warns")
             if (!member.moderatable) return;
-            member.timeout(1 * 60000, "Spamming.")
-                .then(async () => await member.send(`> ${client.Iemojis.mute} You have been put on **timeout** for \`1 minute\` for spamming.`).catch(() => { }))
-                .catch(() => { })
+
+            await member.timeout(1 * 60000, "Spamming.")
+            await member.send(`> ${client.Iemojis.mute} You have been put on **timeout** for \`1 minute\` for spamming.`).catch(() => { })
+
+            await client.Logger.mutedUser(member, client.user.tag, "Auto Mute - Spam", "1 minute")
         }
     }
 
     return setTimeout(() => {
         map.delete(member.id);
     }, 3600);
-
 
 }

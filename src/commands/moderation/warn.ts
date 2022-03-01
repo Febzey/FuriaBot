@@ -1,15 +1,18 @@
-import { en_text }                 from '../../struct/config.js';
-import type { CommandInteraction } from 'discord.js';
-import type FuriaBot               from '../../struct/discord/client.js';
+import { en_text }                              from '../../struct/config.js';
+import type { CommandInteraction, GuildMember } from 'discord.js';
+import type FuriaBot                            from '../../struct/discord/client.js';
 
 export default {
     permissions: "MODERATE_MEMBERS",
     data: en_text.command.warn.data,
     run: async (interaction: CommandInteraction, client: FuriaBot) => {
 
-        const user   = interaction.options.getUser("user");
-        const member = await interaction.guild.members.fetch(user.id);
-        const reason = interaction.options.getString("reason");
+        const user         = interaction.options.getUser("user");
+        const reason       = interaction.options.getString("reason");
+        let   member:        GuildMember;
+
+        try { member = await interaction.guild.members.fetch(user.id) }
+        catch { return client.ErrorHandler.userNotInGuild(interaction) }
 
         const rulesChannel = interaction.guild.rulesChannel;
 

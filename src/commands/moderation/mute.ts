@@ -1,7 +1,7 @@
-import { en_text }                 from '../../struct/config.js';
-import type { CommandInteraction } from 'discord.js';
-import type FuriaBot               from '../../struct/discord/client.js';
-import { getUnmuteTime }           from '../../util/time/convertTime.js';
+import { en_text }                              from '../../struct/config.js';
+import type { CommandInteraction, GuildMember } from 'discord.js';
+import { getUnmuteTime }                        from '../../util/time/convertTime.js';
+import type FuriaBot                            from '../../struct/discord/client.js';
 
 export default {
     permissions: ["MODERATE_MEMBERS"],
@@ -11,7 +11,10 @@ export default {
         const duration  = interaction.options.getString("duration");
         const reason    = interaction.options.getString("reason");
         const silent    = interaction.options.getString("silent");
-        const member    = await interaction.guild.members.fetch(interaction.options.getUser("user"))
+        let   member:     GuildMember
+
+        try { member = await interaction.guild.members.fetch(interaction.options.getUser("user")) }
+        catch { return client.ErrorHandler.userNotInGuild(interaction) }
 
         try {
             let muteTime = await getUnmuteTime(duration);

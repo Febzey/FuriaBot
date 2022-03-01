@@ -16,7 +16,12 @@ export default {
         const { channel, author, content, member } = message;
         if (author.id === client.user.id || member.user.bot) return;
 
-        const currentGuild: guild = await client.guildHandler.getGuild(member.guild.id);
+        let currentGuild = client.guildHandler.GuildsCache.get(member.guild.id);
+
+        if (!currentGuild) {
+            currentGuild = await client.guildHandler.insertGuild(member.guild.id);
+        }
+
 
         // if (channel.type === "DM") {
         //     client.users.fetch(ownerID).then(user => user.send(`${content} | **Sent by: ${author.tag}**`));

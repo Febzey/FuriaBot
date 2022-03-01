@@ -24,6 +24,11 @@ export default class ErrorHandler {
         ephemeral: true
     })
 
+    userNotInGuild = (interaction: Iinteraction) => interaction.reply({
+        content: `> ${this.client.Iemojis.error} The member specified is not apart of this guild.`,
+        ephemeral: true
+    })
+
     noUserPermission = (interaction: Iinteraction, perms: string | string[]) => {
         if (typeof perms === "string") perms = [perms];
         return interaction.reply({
