@@ -8,6 +8,8 @@ export default {
     data: en_text.command.help.data,
     run: async (interaction: CommandInteraction, client: FuriaBot) => {
         
+        const member = await interaction.guild.members.fetch(interaction.user.id);
+
         const createHelpEmbed = () => {
             return {
                 color: colors.colors.filter(({ Violet }) => Violet)[0].Violet,
@@ -17,10 +19,11 @@ export default {
                 },
                 description: `
                 **What can I do**?
-                > - Ban members
-                > - Kick members
-                > - Mute members
+                > - Ban members.
+                > - Kick members.
+                > - Mute members.
                 > - basic utility features.
+                > - Keep moderation logs in a channel.
                 \u200b
                 **Auto Moderate**.
                 > - I can auto warn spammers, then eventually mute the user if they continue to spam.
@@ -59,7 +62,17 @@ export default {
                 \u200b
                 **Enable/Disable auto anti-spam**
                 > \`\`\`/config toggle antispam <option>  \`\`\`
-                > *option* - either disable or enable anti spam.           
+                > *option* - either disable or enable anti spam.   
+                \u200b
+                **Enable/Disable auto Auto-Moderate**
+                > \`\`\`/config toggle automod <option> <maxwarns>  \`\`\`
+                > *option* - either disable or enable auto moderate.
+                > *maxwarns* - set the max amount of warnings a user can have until I automatically kick them from the guild.        
+                \u200b
+                \u200b
+                **Moderation Logs**
+                I can keep track and log all Moderation actions in a text channel,
+                simply create a private channel with the name \`#furia-logs\` then give me the correct permissions to use the channel.
                 \u200b
                 \u200b
                 **Durations**
@@ -101,20 +114,43 @@ Weeks:
             }
         }
 
-
-        return await interaction.reply({
-            ephemeral: true,
-            embeds: [createHelpEmbed()],
-            components: [{
-                type: 1,
+        try {
+            await member.send({
+                // ephemeral: true,
+                embeds: [createHelpEmbed()],
                 components: [{
-                    type: 2,
-                    label: "Support discord",
-                    style: 5,
-                    url: "https://discord.gg/jyk7aBuFrT"
+                    type: 1,
+                    components: [{
+                        type: 2,
+                        label: "Support discord",
+                        style: 5,
+                        url: "https://discord.gg/jyk7aBuFrT"
+                    }]
                 }]
-            }]
-        })
+            })
+            return interaction.reply({
+                content: `> ${client.Iemojis.success} I sent a help embed to you. Check you direct messages.`,
+                ephemeral: true
+            })
+
+        }
+        catch {
+            return interaction.reply({
+                ephemeral: true,
+                embeds: [createHelpEmbed()],
+                components: [{
+                    type: 1,
+                    components: [{
+                        type: 2,
+                        label: "Support discord",
+                        style: 5,
+                        url: "https://discord.gg/jyk7aBuFrT"
+                    }]
+                }]
+            })
+        }
+
+
 
     }
 }

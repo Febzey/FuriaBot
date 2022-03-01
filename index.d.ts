@@ -9,7 +9,9 @@ export type guild = {
     welcome_msg?:  null | string,
     leave_msg?:    null | string,
     created_at?:   null | string,
-    anti_spam?:    0 | 1
+    anti_spam?:    0 | 1,
+    auto_mod?:     0 | 1,
+    max_warns?:    number
 }
 
 export type MuteOptions = {

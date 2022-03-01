@@ -1,12 +1,15 @@
-import { monthYear }                          from '../../util/time/time.js';
-import { db, logger }                         from '../../index.js';
-import type { guild, UserHistory }            from '../../../index';
-import type FuriaBot                          from './client.js';
-import type { ActivityType, ActivityOptions } from 'discord.js';
+import { monthYear }               from '../../util/time/time.js';
+import { db, logger }              from '../../index.js';
+import type { guild, UserHistory } from '../../../index';
+import type FuriaBot               from './client.js';
+import type { ActivityOptions }    from 'discord.js';
 
 export default class GuildHandler {
-    public guildContents: Array<guild>;
-    constructor(private client: FuriaBot) { };
+    public GuildsCache: Map<string, guild>;
+
+    constructor(private client: FuriaBot) {
+        this.GuildsCache = new Map();
+    };
 
     /**
      * Handle bot's activity status.
@@ -14,42 +17,64 @@ export default class GuildHandler {
     clientActivity() {
         const presencesArray = this.client.presences.all;
         setInterval(() => {
-            const presence = presencesArray[Math.floor(Math.random()*presencesArray.length)]
+            const presence = presencesArray[Math.floor(Math.random() * presencesArray.length)]
             this.client.user.setActivity(presence.activity, { type: presence.type } as ActivityOptions);
         }, 5 * 60000);
     }
-
 
     /**
      * Getting all guilds that are stored in the database then
      * pushing the contents to the guildContents array.
      */
-    getAllGuildContent() {
+    getAllGuilds() {
         return new Promise((resolve, reject) => {
             db.query(
                 "USE discord; SELECT * FROM guilds",
                 (err, results) => {
                     if (err) return reject(err.message);
-                    resolve(this.guildContents = results[1])
+                    for (const item of results[1]) {
+                        this.GuildsCache.set(item.guildID, item);
+                    }
+                    resolve(true)
                 }
-                )
+            )
         })
     }
-
 
     /**
      * Inserting a new guild into the database
      * when the bot is invited to a new guild.
      */
-     insertGuild(guildID: string) {
+    insertGuild(guildID: string): Promise<guild> {
         return new Promise((resolve, reject) => {
             db.query(
-                "USE discord; INSERT INTO guilds (guildID, created_at) VALUES (?,?)",
-                [guildID, monthYear()],
+                `
+                USE discord; INSERT IGNORE INTO guilds (guildID, created_at) VALUES (?,?);
+                `,
+                [guildID, monthYear(), guildID],
                 async err => {
                     if (err) return reject(err.message);
-                    await this.getAllGuildContent()
-                    resolve(true);
+                    const updatedGuild = await this.updateGuildsCache(guildID);
+                    resolve(updatedGuild);
+                }
+            )
+        })
+    }
+
+    /**
+     * Updating a specific guild's contents in the guildContents array.
+     * usually after we update a value in a row we will call this function
+     * to have the most up to date data in our cache (this.GuildsCache)
+    */
+    updateGuildsCache(guildID: string): Promise<guild>{
+        return new Promise((resolve, reject) => {
+            db.query(
+                "USE discord; SELECT * from guilds WHERE guildID = ?",
+                [guildID],
+                (err, results) => {
+                    if (err) reject(err.message);
+                    this.GuildsCache.set(guildID, results[1][0]);
+                    resolve(results[1][0]);
                 }
             )
         })
@@ -57,12 +82,14 @@ export default class GuildHandler {
 
 
     /**
-     * Get specific guild from guildContents array.
+     * Get specific guild from GuildsCache map
      */
     getGuild(guildId: string): Promise<guild> {
         return new Promise(async resolve => {
-            let thisGuild: guild = this.guildContents.filter(item => item.guildID ? item.guildID === guildId : null)[0];
-            if (!thisGuild) await this.insertGuild(guildId)
+            let thisGuild: guild = this.GuildsCache.get(guildId);
+            if (!thisGuild) {
+                await this.insertGuild(guildId).catch(() => {})
+            }
             resolve(thisGuild);
         })
     }
@@ -74,7 +101,6 @@ export default class GuildHandler {
      */
     guildExists(guildId: string) {
         return new Promise((resolve, reject) => {
-            console.log(guildId)
             db.query(
                 "USE discord; SELECT * FROM guilds WHERE guildID = ?",
                 [guildId], (err, results) => {
@@ -91,14 +117,15 @@ export default class GuildHandler {
      * called when a admin enables welcome / leave messages within
      * their discord server.
      */
-     updateWelcomeMessageId(guildID: string, channelID: string | boolean) {
-        return new Promise((resolve, reject) => {
+    updateWelcomeMessageId(guildID: string, channelID: string | boolean) {
+        return new Promise(async (resolve, reject) => {
+            if (!this.GuildsCache.has(guildID)) await this.insertGuild(guildID);
             db.query(
                 "USE discord; UPDATE guilds SET welcome_c_id = ? WHERE guildID = ?",
                 [channelID === false ? null : channelID, guildID],
-                err => {
+                async err => {
                     if (err) return reject(err.message)
-                    this.updateSpecificGuildContent(guildID);
+                    await this.updateGuildsCache(guildID).catch(() => {});
                     resolve(true);
                 }
             )
@@ -110,14 +137,33 @@ export default class GuildHandler {
      * Enabling or disabling anti spam within a guild.
      */
     toggleAntiSpam(guildID: string, option: String) {
-        return new Promise((resolve,reject) => {
+        return new Promise(async (resolve, reject) => {
             const opt: number = option === "enable" ? 1 : 0
             db.query(
                 "USE discord; UPDATE guilds SET anti_spam = ? WHERE guildID = ?",
                 [opt, guildID],
-                err => {
+                async err => {
                     if (err) return reject(err.message);
-                    this.updateSpecificGuildContent(guildID);
+                    await this.updateGuildsCache(guildID).catch(() => {});
+                    resolve(opt);
+                }
+            )
+        })
+
+    }
+
+    /**
+     * Enabling or disabling auto mod within a guild.
+     */
+    toggleAutoMod(guildID: string, max_warns:number|false, option: String) {
+        return new Promise(async (resolve, reject) => {
+            const opt: number = option === "enable" ? 1 : 0
+            db.query(
+                "USE discord; UPDATE guilds SET auto_mod = ?, max_warns = ? WHERE guildID = ?",
+                [opt, max_warns, guildID],
+                async err => {
+                    if (err) return reject(err.message);
+                    await this.updateGuildsCache(guildID).catch(() => {});
                     resolve(opt);
                 }
             )
@@ -126,47 +172,27 @@ export default class GuildHandler {
     }
 
 
-    /**
-     * Updating a specific guild's contents in the guildContents array.
-     * usually after we update a value in a row we will call this function
-     * to have the most up to date data in our cache (this.guildContents)
-    */
-    updateSpecificGuildContent(guildID: string) {
-        db.query(
-            "USE discord; SELECT * from guilds WHERE guildID = ?",
-            [guildID],
-            (err, results) => {
-                if (err) throw new Error(err.message);
-                const newArray = this.guildContents.filter(item => item.guildID !== results[1][0].guildID);
-                return this.guildContents = [...newArray, results[1][0]];
-            }
-        )
-    }
-
-
-    private timesUp = (duration: number) => {
+    timesUp = (duration: number) => {
         if (Date.now() / 1000 < duration) return false;
         return true;
     }
 
-    public liftSentence = async (guildId: string, userId: string, type: string) => {
+    liftSentence = async (guildId: string, userId: string, type: string) => {
         try {
-            
-            const guild  = await this.client.guilds.fetch(guildId);
-        
+            const guild = await this.client.guilds.fetch(guildId);
             switch (type) {
-         
+
                 case "mute":
                     const member = await guild.members.fetch(userId);
                     await member.timeout(null);
-                    return await member.send(`> ${this.client.Iemojis.success} Your **Timeout** has expired in the guild **${guild.name}** `).catch(() => {});  
-         
+                    return await member.send(`> ${this.client.Iemojis.success} Your **Timeout** has expired in the guild **${guild.name}** `).catch(() => { });
+
                 case "ban":
-                    await guild.members.unban(userId).catch(() => {});
+                    await guild.members.unban(userId).catch(() => { });
                     db.query("USE discord; DELETE FROM banned WHERE guildID = ? AND bannedID = ?", [guildId, userId]);
                     return;
             }
-        
+
         }
         catch { logger.liftSentence(guildId, userId) };
     }
@@ -194,16 +220,15 @@ export default class GuildHandler {
         }, 5000);
     }
 
-
     /**
      * Getting user row from users table.
      */
-    getUser(guildId: string, userId: string): Promise<Array<UserHistory>|any[]> {
-        return new Promise(resolve => {
+    getUser(guildId: string, userId: string): Promise<Array<UserHistory> | any[]> {
+        return new Promise((resolve, reject) => {
             db.query("USE discord; SELECT * FROM users WHERE guild_id = ? and user_id = ?",
                 [guildId, userId],
                 (err, results) => {
-                    if (err) throw new Error(err.message);
+                    if (err) return reject(err.message);
                     return resolve(results[1]);
                 }
             )
@@ -217,34 +242,60 @@ export default class GuildHandler {
     updateUser(guildId: string, userId: string, type: string) {
         return new Promise((resolve, reject) => {
             db.query("USE discord; SELECT user_id FROM users WHERE guild_id = ? AND user_id = ?",
-            [guildId, userId],
-            (err, results) => {
-                if (err) reject(err.message);
+                [guildId, userId],
+                (err, results) => {
+                    if (err) reject(err.message);
 
-                results[1].length === 0
-                ? db.query(
-                    `USE discord; 
-                     INSERT IGNORE INTO users (guild_id, user_id, warns, bans, muted) VALUES(?,?,?,?,?);
-                     UPDATE users SET ${type} = ${type} + 1 WHERE user_id = ? and guild_id = ?;
-                     `,
-                    [guildId, userId, 0, 0, 0, userId, guildId],
-                    err => {
-                        if (err) return reject(err.message);
-                        resolve(true);
-                    }
-                )
-                : db.query(`USE discord; UPDATE users SET ${type} = ${type} + 1 WHERE user_id = ? AND guild_id = ?`,
-                    [userId, guildId],
-                    err => {
-                        if (err) return reject(err.message);
-                        resolve(true)
-                    }
-                )
-
-            }
-        )
+                    results[1].length === 0
+                        ? db.query(
+                            `USE discord; 
+                            INSERT IGNORE INTO users (guild_id, user_id, warns, bans, muted) VALUES(?,?,?,?,?);
+                            UPDATE users SET ${type} = ${type} + 1 WHERE user_id = ? and guild_id = ?;
+                            `,
+                            [guildId, userId, 0, 0, 0, userId, guildId],
+                            err => {
+                                if (err) return reject(err.message);
+                                this.atMaxWarnings(guildId, userId);
+                                resolve(true);
+                            }
+                        )
+                        : db.query(`USE discord; UPDATE users SET ${type} = ${type} + 1 WHERE user_id = ? AND guild_id = ?`,
+                            [userId, guildId],
+                            err => {
+                                if (err) return reject(err.message);
+                                this.atMaxWarnings(guildId, userId);
+                                resolve(true)
+                            }
+                        )
+                }
+            )
         })
-
-
     }
+
+    /**
+     * Checking if the user is at max warnings.
+    */
+    async atMaxWarnings(guildId: string, userId: string) {
+        const user        = await this.getUser(guildId, userId);
+        const guild_local = await this.getGuild(guildId);
+
+        if (!user[0] || !guild_local) return;
+
+        const maxWarnCount  = guild_local.max_warns;
+        const userWarnCount = user[0].warns;
+
+        if ((maxWarnCount && userWarnCount) && (userWarnCount >= maxWarnCount)) {
+            const guild  = await this.client.guilds.fetch(guildId);
+            const member = await guild.members.fetch(userId);
+            if (!member.kickable) return;
+            await member.send(`> ${this.client.Iemojis.hammer} You have been **kicked** from the guild **${member.guild.name}** for receiving **${maxWarnCount}/${maxWarnCount}** warnings.`).catch(() => { });
+            await member.kick().catch(() => { });
+            await this.client.Logger.kickedUser(member, "FuriaBot", "Spamming")
+            return;
+        }
+        
+        return;
+   
+    }
+
 }

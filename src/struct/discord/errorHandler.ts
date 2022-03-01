@@ -40,6 +40,11 @@ export default class ErrorHandler {
         })
     }
 
+    notNumber = (interaction: Iinteraction) => interaction.reply({
+        content: `> ${this.client.Iemojis.error} The value provided was not a number.`,
+        ephemeral: true
+    })
+
     durationFormat = (interaction: Iinteraction) => interaction.reply({
         content: `> ${this.client.Iemojis.error} The duration given was not in the correct format. Refer to \`/help\` for more info.`,
         ephemeral: true

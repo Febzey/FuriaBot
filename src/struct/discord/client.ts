@@ -15,12 +15,15 @@ import _dirname                from '../../util/dirname.js';
 import GuildHandler            from './guildHandler.js';
 import ErrorHandler            from './errorHandler.js';
 import path                    from 'path';
+import Logger                  from './Logger.js';
 
 class Iemojis {
     error   = "<:error:940632365921873980>";
     success = "<a:success:940632460193067059>";
     cake    = "<:cake:947297119843282965>";
     warning = "<a:warning:947512217585213450>";
+    hammer  = "<:banTF:947857330303795300>";
+    mute    = "<:muteTF:947857971357036564>";
 };
 
 export default class FuriaBot extends Client {
@@ -32,6 +35,7 @@ export default class FuriaBot extends Client {
     public guildHandler:      GuildHandler;
     public Iemojis:           Iemojis;
     public presences:         any;
+    public Logger:            Logger;   
 
     constructor(options: Options['discord']) {
         super(options)
@@ -40,16 +44,17 @@ export default class FuriaBot extends Client {
         this.disabledCommands  = config.disabledCommands || [];
         this.guildHandler      = new GuildHandler(this);
         this.ErrorHandler      = new ErrorHandler(this);
-        this.Iemojis           = new Iemojis;
+        this.Logger            = new Logger(this)
         this.commandCollection = new Collection();
-        this.commands          = [];
+        this.Iemojis           = new Iemojis;
         this.presences         = presences;
+        this.commands          = [];
 
         this.on("ready", async () => {
             logger.discordReady(this.user.tag);
             this.handleEvents();
             await this.loadCommands();
-            await this.guildHandler.getAllGuildContent().catch(console.error);
+            await this.guildHandler.getAllGuilds().catch(console.error);
             this.guildHandler.handleSentenceTime();
             this.guildHandler.clientActivity();
             this.user.setActivity("for commands", {type: "WATCHING"})

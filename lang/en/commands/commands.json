@@ -61,6 +61,35 @@
                                         ]
                                     }
                                 ]
+                            },
+                            {
+                                "name": "automod",
+                                "description": "Toggle the auto mod, I will ban a user for 3 days after 3 warnings.",
+                                "type": 1,
+                                "options": [
+                                    {
+                                        "name": "option",
+                                        "description": "Enable or disable",
+                                        "type": 3,
+                                        "required": true,
+                                        "choices": [
+                                            {
+                                                "name": "enable",
+                                                "value": "enable"
+                                            },
+                                            {
+                                                "name": "disable",
+                                                "value": "disable"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "maxwarns",
+                                        "description": "Set how many warnings it takes before kicking the user.",
+                                        "type": 3,
+                                        "required": true
+                                    }
+                                ]
                             }
                         ]
                     }

@@ -23,9 +23,9 @@ export default {
         try { 
             const duration: number = !banIsPermanent ? await getUnmuteTime(durationChoice) * 1000 + Date.now() : 9999999999
 
-            await user.send(`> ${client.Iemojis.error} You have been ${banIsPermanent ? "**Permanently**" : ""} **Banned** from the guild **${member.guild.name}** ${reason ? `\`reason:\` ${reason}.` : ""} ${!banIsPermanent ? `\`Duration\`: ${durationChoice}` : ""}`).catch(() => {});
+            await user.send(`> ${client.Iemojis.hammer} You have been ${banIsPermanent ? "**Permanently**" : ""} **Banned** from the guild **${member.guild.name}** ${reason ? `\`reason:\` ${reason}.` : ""} ${!banIsPermanent ? `\`Duration\`: ${durationChoice}` : ""}`).catch(() => {});
 
-            await member.ban();
+           // await member.ban();
 
             db.query(
                 `USE discord; 
@@ -47,11 +47,14 @@ export default {
 
             await client.guildHandler.updateUser(member.guild.id, member.user.id, "bans").catch(() => {});
 
-            return await interaction.reply({
-                content: `> ${client.Iemojis.success} <@${user.id}> has been ${banIsPermanent ? "**Permanently**": ""} **Banned** ${reason ? `\`reason:\` ${reason}.` : ""} ${!banIsPermanent ? `\`Duration\`: ${durationChoice}`:""}`,
+            await interaction.reply({
+                content: `> ${client.Iemojis.hammer} <@${user.id}> has been ${banIsPermanent ? "**Permanently**": ""} **Banned** ${reason ? `\`reason:\` ${reason}.` : ""} ${!banIsPermanent ? `\`Duration\`: ${durationChoice}`:""}`,
                 ephemeral: silent === "true" ? true: false
             })
 
+            await client.Logger.bannedUser(member, `${interaction.user.username}#${interaction.user.discriminator}`, reason, durationChoice);
+
+            return
 
         }
 

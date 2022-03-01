@@ -21,10 +21,14 @@ export default {
 
         await client.guildHandler.updateUser(member.guild.id, member.user.id, "warns").catch(() => {});
 
-        return interaction.reply({
+        interaction.reply({
             content: `> ${client.Iemojis.success} ${user.username}#${user.discriminator} has been warned.`,
             ephemeral: true
         })
+
+        await client.Logger.warnedUser(member, `${interaction.user.username}#${interaction.user.discriminator}`, reason);
+
+        return;
 
     }
 }

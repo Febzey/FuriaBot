@@ -21,10 +21,15 @@ export default {
             
             await member.kick();
             
-            return interaction.reply({
+            interaction.reply({
                 content: `${client.Iemojis.success} <@${member.id}> has been **Kicked** ${reason ? `\`reason:\` ${reason}.` : ""}`,
                 ephemeral: silent === "true" ? true : false
             })
+
+            await client.Logger.kickedUser(member, `${interaction.user.username}#${interaction.user.discriminator}`, reason);
+
+
+            return;
         }
 
         catch { 
