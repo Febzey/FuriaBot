@@ -18,7 +18,7 @@ export default {
         }
 
         const welcomeChannel = client.channels.cache.get(guild.welcome_c_id);
-        if (welcomeChannel.type !== "GUILD_TEXT") return;
+        if (!welcomeChannel || welcomeChannel.type !== "GUILD_TEXT") return;
 
         const welcomeImage: MessageAttachment = await generateImage(member);
 
