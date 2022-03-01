@@ -3,11 +3,9 @@ import { GuildMember } from "discord.js";
 import { colors }       from '../../struct/config.js';
 
 export default class ModActionLogger {
-
     public logChannelName: String = "furia-logs";
 
     constructor(private client: FuriaBot) {}
-    
 
     getLogChannel = async (guild_id: string) => { 
         const guild      = await this.client.guilds.fetch(guild_id);

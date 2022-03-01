@@ -93,7 +93,6 @@ Minutes:
 # min  
     
 Hours:
-# h 
 # hr  
 # hrs
 # hours
@@ -116,7 +115,6 @@ Weeks:
 
         try {
             await member.send({
-                // ephemeral: true,
                 embeds: [createHelpEmbed()],
                 components: [{
                     type: 1,

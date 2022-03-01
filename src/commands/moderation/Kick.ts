@@ -1,7 +1,6 @@
 import { en_text }                              from '../../struct/config.js';
 import type { CommandInteraction, GuildMember } from 'discord.js';
 import type FuriaBot                            from '../../struct/discord/client.js';
-import type { guild }                           from '../../../index';
 
 export default {
     permissions: "KICK_MEMBERS",
@@ -18,7 +17,7 @@ export default {
 
         if (!member.kickable) return client.ErrorHandler.kick(interaction)
 
-        await user.send(`> ${client.Iemojis.error} You have been **Kicked** from the guild **${interaction.guild.name}** ${reason ? `\`reason:\` ${reason}` : ""}`).catch(() => {})
+        await user.send(`> ${client.Iemojis.hammer} You have been **Kicked** from the guild **${interaction.guild.name}** ${reason ? `\`reason:\` ${reason}` : ""}`).catch(() => {})
 
         try {
             
