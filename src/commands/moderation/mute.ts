@@ -1,6 +1,6 @@
 import { en_text }                              from '../../struct/config.js';
 import type { CommandInteraction, GuildMember } from 'discord.js';
-import { getUnmuteTime }                        from '../../util/time/convertTime.js';
+import { convertTimeString }                        from '../../util/time/convertTime.js';
 import type FuriaBot                            from '../../struct/discord/client.js';
 import { logger }                               from '../../index.js';
 
@@ -18,7 +18,7 @@ export default {
         catch { return client.ErrorHandler.userNotInGuild(interaction) }
 
         try {
-            let muteTime = await getUnmuteTime(duration);
+            let muteTime = await convertTimeString(duration);
                 muteTime = muteTime * 1000;
             
             await member.timeout(muteTime, reason ? reason : "No reason specified")

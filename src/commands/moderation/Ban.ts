@@ -1,6 +1,6 @@
 import { CommandInteraction }    from 'discord.js';
 import { en_text }               from '../../struct/config.js';
-import { getUnmuteTime }         from '../../util/time/convertTime.js';
+import { convertTimeString }         from '../../util/time/convertTime.js';
 import type FuriaBot             from '../../struct/discord/client.js';
 import { db, logger }            from '../../index.js';
 
@@ -22,7 +22,7 @@ export default {
 
         try { 
             const duration: number|false = !banIsPermanent 
-                                     ? await getUnmuteTime(durationChoice) * 1000 + Date.now() 
+                                     ? await convertTimeString(durationChoice) * 1000 + Date.now() 
                                      : false
 
             await user.send(`> ${client.Iemojis.hammer} You have been ${banIsPermanent ? "**Permanently**" : ""} **Banned** from the guild **${member.guild.name}** ${reason ? `\`reason:\` ${reason}.` : ""} ${!banIsPermanent ? `\`Duration\`: ${durationChoice}` : ""}`)

@@ -184,7 +184,7 @@
                         "required": true
                     }
                 ]
-            }            
+            }
         },
         "warn": {
             "data": {
@@ -205,7 +205,7 @@
                         "required": true
                     }
                 ]
-            }            
+            }
         },
         "kick": {
             "data": {
@@ -292,12 +292,14 @@
                 "name": "purge",
                 "type": 1,
                 "description": "clear messages from chat",
-                "options": [{
-                    "name": "amount",
-                    "description": "Specify the amount of messages to delete.",
-                    "type": 3,
-                    "required": true
-                }]
+                "options": [
+                    {
+                        "name": "amount",
+                        "description": "Specify the amount of messages to delete.",
+                        "type": 3,
+                        "required": true
+                    }
+                ]
             }
         },
         "help": {
@@ -305,6 +307,45 @@
                 "name": "help",
                 "type": 1,
                 "description": "get help with learning how I work"
+            }
+        },
+        "reminder": {
+            "data": {
+                "name": "reminder",
+                "type": 1,
+                "description": "set or delete a reminder",
+                "options": [
+                    {
+                        "name": "add",
+                        "description": "add a reminder",
+                        "type": 1,
+                        "options": [
+                            {
+                                "name": "text",
+                                "description": "what you want to be reminded about",
+                                "type": 3,
+                                "required": true
+                            },
+                            {
+                                "name": "duration",
+                                "description": "when you want to be reminded",
+                                "type": 3,
+                                "required": true
+                            }
+                        ]
+                    },
+                    {
+                        "name": "remove",
+                        "description": "remove a reminder",
+                        "type": 1,
+                        "options": [                            {
+                            "name": "id",
+                            "description": "the ID of your reminder",
+                            "type": 4,
+                            "required": true
+                        }]
+                    }
+                ]
             }
         }
     }

@@ -2,7 +2,7 @@
  * Returns the number of seconds for correct format.
  */
 
-export const getUnmuteTime = (durationString: string): Promise<number> => {
+export const convertTimeString = (durationString: string): Promise<number> => {
     const regex = /(\d+)\s?([a-zA-Z]+)/;
     return new Promise((resolve, reject) => {
         const matches = regex.exec(durationString);

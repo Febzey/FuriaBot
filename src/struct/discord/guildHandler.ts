@@ -195,7 +195,7 @@ export default class GuildHandler {
      * Handle check ban time,
      * this will run on an interval.
      */
-    handleSentenceTime() {
+    handleTimes() {
         setInterval(() => {
             db.query(
                 `

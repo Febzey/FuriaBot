@@ -46,8 +46,8 @@ export default class FuriaBot extends Client {
             logger.discordReady(this.user.tag);
             this.handleEvents();
             await this.loadCommands();
-            await this.guildHandler.getAllGuilds().catch(console.error);
-            this.guildHandler.handleSentenceTime();
+            await this.guildHandler.getAllGuilds().catch(() => { });
+            this.guildHandler.handleTimes();
             this.guildHandler.clientActivity();
             this.user.setActivity("for commands", {type: "WATCHING"})
         })

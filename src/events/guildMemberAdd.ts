@@ -1,9 +1,9 @@
 import { GuildMember }                from 'discord.js';
-import generateImage                  from '../util/generate/generateWelcomeImage.js';
 import type { guild }                 from '../../index';
 import type FuriaBot                  from '../struct/discord/client';
 import _dirname                       from '../util/dirname.js';
 import { convertWelcomeMessageString} from '../util/convertString.js';
+
 export default {
     name: "guildMemberAdd",
     once: false,
@@ -23,12 +23,9 @@ export default {
         let welcomeMsg: string = `> <@${member.id}> Welcome to **${member.guild.name}**! You are member **#${member.guild.memberCount}**`;
 
         if (guild.welcome_msg) welcomeMsg = convertWelcomeMessageString(guild.welcome_msg, member);
-    
-        const welcomeImage = await generateImage(member);
 
         return welcomeChannel.send({
-          content: welcomeMsg,
-          files: [welcomeImage]
+          content: welcomeMsg
         })
 
     }
