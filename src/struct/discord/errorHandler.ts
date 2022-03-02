@@ -65,6 +65,11 @@ export default class ErrorHandler {
         ephemeral: true
     })
 
+    cantUnmute = (interaction: Iinteraction) => interaction.reply({
+        content: `> ${this.client.Iemojis.error} I was not able to unmute this user. They may not be currently muted.`,
+        ephemeral: true
+    })
+
     alreadyMuted = (interaction: Iinteraction) => interaction.reply({
         content: `> ${this.client.Iemojis.error} This user is already **muted**`,
         ephemeral: true

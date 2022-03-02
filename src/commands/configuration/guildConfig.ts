@@ -1,5 +1,6 @@
 import { CommandInteraction, Channel } from 'discord.js';
 import { en_text }                     from '../../struct/config.js';
+import { logger }                      from '../../index.js';
 import type FuriaBot                   from '../../struct/discord/client.js';
 import type { guild } from '../../../index';
 
@@ -27,10 +28,13 @@ export default {
                 switch (subCommand) {
                     case "greetings":
                         channel = interaction.options.getChannel("channel") as Channel;
+                       
                         if (channel.type !== "GUILD_TEXT")
                             return client.ErrorHandler.notTextChannel(interaction);
+                       
                         if (choice === "disable" && !guild.welcome_c_id)
                             return client.ErrorHandler.notEnabled(interaction);
+                       
                         try {
                             await client.guildHandler.updateWelcomeMessageId(interaction.guild.id, choice === "enable" ? channel.id : false)
                             return interaction.reply({
@@ -40,7 +44,11 @@ export default {
                                 ephemeral: true
                             })
                         }
-                        catch { return client.ErrorHandler.unexpected(interaction) };
+                        
+                        catch (error) { 
+                            client.ErrorHandler.unexpected(interaction)
+                            return logger.Error(`Was not able to toggle welcome messages in guild: ${interaction.guild.name}. Trace: ${error}`);
+                        };
 
                     case "antispam":
                         try {
@@ -50,7 +58,11 @@ export default {
                                 ephemeral: true
                             })
                         }
-                        catch { return client.ErrorHandler.unexpected(interaction) }
+                        
+                        catch (error) { 
+                            client.ErrorHandler.unexpected(interaction)
+                            return logger.Error(`Was not able to toggle anti-spam in guild: ${interaction.guild.name}. Trace: ${error}`)
+                         }
 
                     case "automod":
                         try {
@@ -59,11 +71,14 @@ export default {
                             max_warns = parseInt(max_warns);
                             const opt = await client.guildHandler.toggleAutoMod(interaction.guildId, max_warns, choice);
                             return interaction.reply({
-                                content: `> ${client.Iemojis.success} **Auto-Mod** has been ${opt === 1 ? "enabled." : "disabled."}`,
+                                content: `> ${client.Iemojis.success} **Auto Moderation** has been ${opt === 1 ? "enabled." : "disabled."}`,
                                 ephemeral: true
                             })
                         }
-                        catch { return client.ErrorHandler.unexpected(interaction) }
+                        catch (error) {
+                            client.ErrorHandler.unexpected(interaction)
+                            return logger.Error(`Was not able to toggle auto-mod in guild: ${interaction.guild.name}. Trace: ${error}`)
+                        }
                 }
         }
     }

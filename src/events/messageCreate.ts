@@ -1,9 +1,7 @@
 import type { Message, GuildMember } from 'discord.js';
-import type FuriaBot from '../struct/discord/client.js';
-import type { guild } from '../../index';
-import { ownerID } from '../struct/config.js';
-import generateImage from '../util/generate/generateWelcomeImage.js';
-import { antiSpam } from '../functions/moderate/antispam.js';
+import type FuriaBot                 from '../struct/discord/client.js';
+import { ownerID }                   from '../struct/config.js';
+import { antiSpam }                  from '../functions/moderate/antispam.js';
 /**
  * Users who spam will be placed into the set.
  */
@@ -14,28 +12,18 @@ export default {
     once: false,
     execute: async (message: Message, client: FuriaBot) => {
         const { channel, author, content, member } = message;
-        if (author.id === client.user.id || member.user.bot) return;
+        if (author.id === client.user.id) return;
+        if (author.bot) return;
+
+        if (channel.type === "DM") {
+            return client.users.fetch(ownerID).then(user => user.send(`${content} | **Sent by: ${author.tag}**`));
+        }
 
         let currentGuild = client.guildHandler.GuildsCache.get(member.guild.id);
 
         if (!currentGuild) {
             currentGuild = await client.guildHandler.insertGuild(member.guild.id);
         }
-
-
-        // if (channel.type === "DM") {
-        //     client.users.fetch(ownerID).then(user => user.send(`${content} | **Sent by: ${author.tag}**`));
-        // }
-
-        // if (content === "simjoin") {
-        //     if (channel.id !== "939001256951824385") return;
-        //     const member: GuildMember = await message.guild.members.fetch(ownerID);
-        //     const image = await generateImage(member);
-        //     return channel.send({
-        //         content: `> <@${member.id}> Welcome to **${member.guild.name}**! You are member **#${member.guild.memberCount}**`,
-        //         files: [image],
-        //     })
-        // }
 
         if (!currentGuild) return;
         currentGuild.anti_spam && antiSpam(map, message, client);

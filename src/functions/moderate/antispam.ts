@@ -11,15 +11,16 @@ export async function antiSpam(
     !map.has(member.id) && map.set(member.id, { messages: 0 });
     map.set(member.id, { messages: map.get(member.id).messages + 1 })
 
-    for (const user of map) {
-        const messageCount = user[1].messages;
+    const user = map.get(member.user.id);
+        
+    const messageCount = user.messages;
 
-        if (messageCount === 6 && user[0] === member.id) {
+        if (messageCount === 5) {
             channel.send(`> <@${member.id}> Please do not spam.`)
                 .then(msg => setTimeout(() => { msg.delete() }, 10000));
         }
 
-        if (messageCount === 10 && user[0] === member.id) {
+        if (messageCount === 8) {
             await client.guildHandler.updateUser(member.guild.id, member.user.id, "warns")
             if (!member.moderatable) return;
 
@@ -28,10 +29,10 @@ export async function antiSpam(
 
             await client.Logger.mutedUser(member, client.user.tag, "Auto Mute - Spam", "1 minute")
         }
-    }
+    
 
     return setTimeout(() => {
         map.delete(member.id);
-    }, 3600);
+    }, 4200);
 
 }

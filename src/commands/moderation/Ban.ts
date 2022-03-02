@@ -2,7 +2,7 @@ import { CommandInteraction }    from 'discord.js';
 import { en_text }               from '../../struct/config.js';
 import { getUnmuteTime }         from '../../util/time/convertTime.js';
 import type FuriaBot             from '../../struct/discord/client.js';
-import { db }                    from '../../index.js';
+import { db, logger }            from '../../index.js';
 
 export default {
     permissions: "BAN_MEMBERS",
@@ -21,11 +21,14 @@ export default {
         
 
         try { 
-            const duration: number = !banIsPermanent ? await getUnmuteTime(durationChoice) * 1000 + Date.now() : 9999999999
+            const duration: number|false = !banIsPermanent 
+                                     ? await getUnmuteTime(durationChoice) * 1000 + Date.now() 
+                                     : false
 
-            await user.send(`> ${client.Iemojis.hammer} You have been ${banIsPermanent ? "**Permanently**" : ""} **Banned** from the guild **${member.guild.name}** ${reason ? `\`reason:\` ${reason}.` : ""} ${!banIsPermanent ? `\`Duration\`: ${durationChoice}` : ""}`).catch(() => {});
-
-           // await member.ban();
+            await user.send(`> ${client.Iemojis.hammer} You have been ${banIsPermanent ? "**Permanently**" : ""} **Banned** from the guild **${member.guild.name}** ${reason ? `\`reason:\` ${reason}.` : ""} ${!banIsPermanent ? `\`Duration\`: ${durationChoice}` : ""}`)
+            .catch(() => logger.Warn(`Failed to send message to user: ${user.tag}`))
+           
+            //await member.ban();
 
             db.query(
                 `USE discord; 
@@ -38,21 +41,22 @@ export default {
                     member.user.tag,
                     interaction.user.tag,
                     reason,
-                    duration / 1000,
+                    duration ? duration / 1000 : null,
                 ],
                 err => {
                     if (err) throw new Error(err.message);
                 }
             )
 
-            await client.guildHandler.updateUser(member.guild.id, member.user.id, "bans").catch(() => {});
+            await client.guildHandler.updateUser(member.guild.id, member.user.id, "bans")
+            .catch(error => logger.Error(`Error while trying to update user row: ${member.user.id} (${user.tag}). Trace: ${error}`))
 
             await interaction.reply({
                 content: `> ${client.Iemojis.hammer} <@${user.id}> has been ${banIsPermanent ? "**Permanently**": ""} **Banned** ${reason ? `\`reason:\` ${reason}.` : ""} ${!banIsPermanent ? `\`Duration\`: ${durationChoice}`:""}`,
                 ephemeral: silent === "true" ? true: false
             })
 
-            await client.Logger.bannedUser(member, `${interaction.user.username}#${interaction.user.discriminator}`, reason, durationChoice);
+            await client.Logger.bannedUser(member, `${interaction.user.tag}`, reason, durationChoice);
 
             return
 
@@ -60,7 +64,9 @@ export default {
 
         catch (err) { 
             if (err === "convert_time") return client.ErrorHandler.durationFormat(interaction); 
-            return client.ErrorHandler.ban(interaction) 
+            client.ErrorHandler.ban(interaction);
+            logger.Error(`Error while trying to ban user: ${user.tag} (${user.id}) in guild: ${member.guild.name} (${member.guild.id})`) 
+            return;
         };
         
     }

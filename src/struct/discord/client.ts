@@ -16,15 +16,7 @@ import GuildHandler            from './guildHandler.js';
 import ErrorHandler            from './errorHandler.js';
 import path                    from 'path';
 import Logger                  from './Logger.js';
-
-class Iemojis {
-    error   = "<:error:940632365921873980>";
-    success = "<a:success:940632460193067059>";
-    cake    = "<:cake:947297119843282965>";
-    warning = "<a:warning:947512217585213450>";
-    hammer  = "<:banTF:947857330303795300>";
-    mute    = "<:muteTF:947857971357036564>";
-};
+import Iemojis                 from './Iemojis.js';
 
 export default class FuriaBot extends Client {
 
@@ -68,7 +60,7 @@ export default class FuriaBot extends Client {
                 ? this.once(event.name, (...args) => event.execute(...args, this))
                 : this.on(event.name, (...args) => event.execute(...args, this))
         };
-    };
+    }; 
 
     private async _loadCmd(file: string, dir?: string) {
         const command = dir ? await import(`../../commands/${dir}/${file}`) : await import(`../../commands/${file}`)        

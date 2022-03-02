@@ -212,12 +212,12 @@ export default class GuildHandler {
                     if (err) throw new Error(err.message);
                     const bannedUsers = results[1];
                     for (const user of bannedUsers) {
-                        if (!this.timesUp(user.duration) || !user) return;
+                        if (user.duration === null || !this.timesUp(user.duration) || !user) return;
                         this.liftSentence(user.guildID, user.bannedID, "ban")
                     }
                 }
             )
-        }, 5000);
+        }, 10000);
     }
 
     /**
@@ -244,7 +244,7 @@ export default class GuildHandler {
             db.query("USE discord; SELECT user_id FROM users WHERE guild_id = ? AND user_id = ?",
                 [guildId, userId],
                 (err, results) => {
-                    if (err) reject(err.message);
+                    if (err) return reject(err.message);
 
                     results[1].length === 0
                         ? db.query(
@@ -255,7 +255,6 @@ export default class GuildHandler {
                             [guildId, userId, 0, 0, 0, userId, guildId],
                             err => {
                                 if (err) return reject(err.message);
-                                this.atMaxWarnings(guildId, userId);
                                 resolve(true);
                             }
                         )
@@ -288,9 +287,10 @@ export default class GuildHandler {
             const guild  = await this.client.guilds.fetch(guildId);
             const member = await guild.members.fetch(userId);
             if (!member.kickable) return;
-            await member.send(`> ${this.client.Iemojis.hammer} You have been **kicked** from the guild **${member.guild.name}** for receiving **${maxWarnCount}/${maxWarnCount}** warnings.`).catch(() => { });
+            await member.send(`> ${this.client.Iemojis.hammer} You have been **kicked** from the guild **${member.guild.name}** for receiving **${maxWarnCount}/${maxWarnCount}** warnings.`)
+            .catch(() => logger.Warn(`Failed to send message to user: ${member.user.tag}`));
             await member.kick().catch(() => { });
-            await this.client.Logger.kickedUser(member, "FuriaBot", "Spamming")
+            await this.client.Logger.kickedUser(member, this.client.user.tag, "Spamming")
             return;
         }
         

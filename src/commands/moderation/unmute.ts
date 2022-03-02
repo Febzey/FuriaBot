@@ -1,6 +1,7 @@
 import { en_text }                              from '../../struct/config.js';
 import type { CommandInteraction, GuildMember } from 'discord.js';
 import type FuriaBot                            from '../../struct/discord/client.js';
+import { logger }                               from '../../index.js';
 
 export default {
     permissions: ["MODERATE_MEMBERS"],
@@ -19,12 +20,9 @@ export default {
                 ephemeral: true
             })
         }
-        catch {
-            return interaction.reply({
-                content: `> ${client.Iemojis.error} I was not able to unmute <@${member.id}>. They may not be currently muted.`,
-                ephemeral: true
-            })
-
+        catch (error) {
+            client.ErrorHandler.cantUnmute(interaction);
+            return logger.Error(`Error while trying to unmute user in guild: ${interaction.guild.name}`);
         }
 
     }

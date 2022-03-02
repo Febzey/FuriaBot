@@ -2,6 +2,7 @@ import { en_text }                              from '../../struct/config.js';
 import type { CommandInteraction, GuildMember } from 'discord.js';
 import { getUnmuteTime }                        from '../../util/time/convertTime.js';
 import type FuriaBot                            from '../../struct/discord/client.js';
+import { logger }                               from '../../index.js';
 
 export default {
     permissions: ["MODERATE_MEMBERS"],
@@ -21,25 +22,29 @@ export default {
                 muteTime = muteTime * 1000;
             
             await member.timeout(muteTime, reason ? reason : "No reason specified")
-            await member.send(`> ${client.Iemojis.mute} You have been put on **timeout** in the guild **${member.guild.name}** ${reason ? `\`reason:\` ${reason}.` : ""} ${duration ? `\`duration:\` ${duration}` : ""}`).catch(() => {});
+            
+            await member.send(`> ${client.Iemojis.mute} You have been put on **timeout** in the guild **${member.guild.name}** ${reason ? `\`reason:\` ${reason}.` : ""} ${duration ? `\`duration:\` ${duration}` : ""}`)
+            .catch(() => logger.Warn(`Failed to send message to user: ${member.user.tag}`));
 
-            await client.guildHandler.updateUser(member.guild.id, member.user.id, "muted").catch(() => {});
+            await client.guildHandler.updateUser(member.guild.id, member.user.id, "muted")
+            .catch(error => logger.Error(`Error while trying to update user row: ${member.user.id} (${member.user.tag}). Trace: ${error}`))
 
             await interaction.reply({
                 content: `> ${client.Iemojis.mute} <@${member.id}> has been **muted** ${reason ? `\`reason:\` ${reason}.` : ""} ${duration ? `\`duration:\` ${duration}` : ""}`,
                 ephemeral: silent === "true" ? true : false
             })
 
-            await client.Logger.mutedUser(member, `${interaction.user.username}#${interaction.user.discriminator}`, reason, duration);
+            await client.Logger.mutedUser(member, `${interaction.user.tag}`, reason, duration);
             
             return;
 
         }
 
-        catch (err) { 
-            if (err === "convert_time") return client.ErrorHandler.durationFormat(interaction); 
-            return client.ErrorHandler.mute(interaction);
-         };
+        catch (error) { 
+            if (error === "convert_time") return client.ErrorHandler.durationFormat(interaction); 
+            client.ErrorHandler.mute(interaction);
+            logger.Error(`Error while trying to mute user in guild: ${interaction.guild.name}. Trace: ${error}`)
+        };
 
     }
 }

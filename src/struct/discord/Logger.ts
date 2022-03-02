@@ -27,7 +27,10 @@ export default class ModActionLogger {
                 > **Reason:** ${reason ? reason : "no reason specified."}
                 > **Warned by:** ${actionBy}
                 `,
-                timestamp: new Date
+                timestamp: new Date,
+                footer: {
+                    text: `ID: ${member.id}`
+                 }
             }],
         })
     }
@@ -46,7 +49,11 @@ export default class ModActionLogger {
                 > **Duration:** ${duration ? duration : "no duration given"}
                 > **Banned by:** ${actionBy}
                 `,
-                timestamp: new Date
+                timestamp: new Date,
+                footer: {
+                    text: `ID: ${member.id}`
+                 }
+                
             }],
         })
     }
@@ -65,7 +72,10 @@ export default class ModActionLogger {
                 > **Duration:** ${duration ? duration : "no duration given"}
                 > **Muted by:** ${actionBy}
                 `,
-                timestamp: new Date
+                timestamp: new Date,
+                footer: {
+                    text: `ID: ${member.id}`
+                 }
             }],
         })
     }
@@ -76,14 +86,17 @@ export default class ModActionLogger {
         return await channel.send({
             embeds: [{
                 color: colors.colors.filter(({ Blue }) => Blue)[0].Blue,
-                title: `User Kicked. ${this.client.Iemojis.hammer}`,
+                title: `User Kicked. ${this.client.Iemojis.kick}`,
                 description: `
 
                 > **User** *${member.user.username}#${member.user.discriminator}* has been kicked.
                 > **Reason:** ${reason ? reason : "no reason specified."}
                 > **Kicked by:** ${actionBy}
                 `,
-                timestamp: new Date
+                timestamp: new Date,
+                footer: {
+                    text: `ID: ${member.id}`
+                 }
             }],
         })
     }

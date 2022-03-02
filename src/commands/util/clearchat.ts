@@ -1,6 +1,7 @@
 import { en_text}                  from '../../struct/config.js';
 import type { CommandInteraction } from 'discord.js';
 import type FuriaBot               from '../../struct/discord/client.js';
+import { logger }                  from '../../index.js';
 
 export default {
     permissions: ["MANAGE_MESSAGES"],
@@ -33,11 +34,12 @@ export default {
 
         }
 
-        catch {
-            return interaction.reply({
+        catch (error) {
+            interaction.reply({
                 content: `> ${client.Iemojis.error} an error occurred while trying to purge messages.`,
                 ephemeral: true
             })
+            return logger.Error(`Error while trying to clear chat messages in guild: ${interaction.guild.name}. Trace: ${error}`)
         }
     }
 }

@@ -1,6 +1,7 @@
-import { en_text, colors } from '../../struct/config.js';
-import type { CommandInteraction, GuildMember, Guild } from 'discord.js';
-import type FuriaBot from '../../struct/discord/client.js';
+import { en_text, colors }         from '../../struct/config.js';
+import type { CommandInteraction } from 'discord.js';
+import type FuriaBot               from '../../struct/discord/client.js';
+import { logger }                  from '../../index.js';
 
 
 export default {
@@ -126,14 +127,19 @@ Weeks:
                     }]
                 }]
             })
+            .catch(() => {
+                logger.Warn(`Failed to send message to user: ${member.user.tag}`)
+            });
+
+
             return interaction.reply({
                 content: `> ${client.Iemojis.success} I sent a help embed to you. Check you direct messages.`,
                 ephemeral: true
             })
 
         }
-        catch {
-            return interaction.reply({
+        catch (error) {
+            interaction.reply({
                 ephemeral: true,
                 embeds: [createHelpEmbed()],
                 components: [{
@@ -145,10 +151,9 @@ Weeks:
                         url: "https://discord.gg/jyk7aBuFrT"
                     }]
                 }]
-            })
+            });
+            return logger.Error(`Error while trying to send help embed in guild: ${interaction.guild.name}. Trace: ${error}`)
         }
-
-
 
     }
 }

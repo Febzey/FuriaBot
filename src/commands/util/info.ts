@@ -1,8 +1,9 @@
-import { en_text, colors } from '../../struct/config.js';
+import { en_text, colors }                             from '../../struct/config.js';
 import type { CommandInteraction, GuildMember, Guild } from 'discord.js';
-import type FuriaBot from '../../struct/discord/client.js';
-import type { UserHistory } from '../../../index';
-import { timeAgoStr, dateTimeString } from '../../util/time/time.js';
+import type FuriaBot                                   from '../../struct/discord/client.js';
+import type { UserHistory }                            from '../../../index';
+import { timeAgoStr, dateTimeString }                  from '../../util/time/time.js';
+import { logger }                                      from '../../index.js';
 
 
 export default {
@@ -79,24 +80,30 @@ export default {
         }
 
 
-        switch (subCommand) {
+        try {
+            switch (subCommand) {
          
-            case "user":
-                const user   = interaction.options.getUser("user");
-                const member = await interaction.guild.members.fetch(user.id);
-                const res    = await client.guildHandler.getUser(member.guild.id, member.user.id);
-
-                return interaction.reply({
-                    embeds: [userEmbed(member, res)],
-                    ephemeral: true
-                })
-
-            case "server":
-                return interaction.reply({
-                    embeds: [serverEmbed(interaction.guild)],
-                    ephemeral: true
-                })
+                case "user":
+                    const user   = interaction.options.getUser("user");
+                    const member = await interaction.guild.members.fetch(user.id);
+                    const res    = await client.guildHandler.getUser(member.guild.id, member.user.id);
+    
+                    return interaction.reply({
+                        embeds: [userEmbed(member, res)],
+                        ephemeral: true
+                    })
+    
+                case "server":
+                    return interaction.reply({
+                        embeds: [serverEmbed(interaction.guild)],
+                        ephemeral: true
+                    })
+            }
         }
+        catch (error) {
+            return logger.Error(`Error while trying to perform /info command in guild: ${interaction.guild.name}. Trace: ${error}`)
+        }
+    
 
 
     }
