@@ -29,14 +29,18 @@ export default {
                     case "greetings":
                         channel = interaction.options.getChannel("channel") as Channel;
                        
-                        if (channel.type !== "GUILD_TEXT")
+                        let welcomeMessage = interaction.options.getString("welcomemessage");
+
+                        if (!welcomeMessage) welcomeMessage = null;
+
+                        if (channel && channel.type !== "GUILD_TEXT")
                             return client.ErrorHandler.notTextChannel(interaction);
                        
                         if (choice === "disable" && !guild.welcome_c_id)
                             return client.ErrorHandler.notEnabled(interaction);
                        
                         try {
-                            await client.guildHandler.updateWelcomeMessageId(interaction.guild.id, choice === "enable" ? channel.id : false)
+                            await client.guildHandler.updateWelcomeMessageSettings(interaction.guild.id, choice === "enable" ? channel.id : false, welcomeMessage)
                             return interaction.reply({
                                 content: choice === "enable"
                                     ? `> **Enabled** ${client.Iemojis.success} I will welcome new users in the channel <#${channel.id}>.`

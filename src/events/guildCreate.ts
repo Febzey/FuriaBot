@@ -28,7 +28,7 @@ export default {
                     }]
                 }]
 
-            }).catch(() => {})
+            }).catch(() => logger.Warn(`Failed to send message to user: ${user.tag}`))
 
             return;
 

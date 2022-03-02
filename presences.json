@@ -19,6 +19,18 @@
         {
             "activity": "for commands",
             "type": "WATCHING"
+        },
+        {
+            "activity": "for /ban",
+            "type": "WATCHING"
+        },
+        {
+            "activity": "for /mute",
+            "type": "WATCHING"
+        },
+        {
+            "activity": "for /reminder",
+            "type": "WATCHING"
         }
     ]
 }

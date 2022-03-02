@@ -36,6 +36,12 @@
                                         "description": "select the text channel you want me to welcome people in",
                                         "type": 7,
                                         "required": false
+                                    },
+                                    {
+                                        "name": "welcomemessage",
+                                        "description": "the message you want the user to see when they join the server",
+                                        "type": 3,
+                                        "required": false
                                     }
                                 ]
                             },

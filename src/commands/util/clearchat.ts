@@ -24,7 +24,9 @@ export default {
 
         try {
 
-            const messages = await interaction.channel.messages.fetch({ limit: numAmount });
+            const messages = await interaction.channel.messages
+            .fetch({ limit: numAmount });
+            
             messages.forEach(message => message.delete());
 
             return interaction.reply({

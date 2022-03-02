@@ -72,7 +72,7 @@ export default class GuildHandler {
                 "USE discord; SELECT * from guilds WHERE guildID = ?",
                 [guildID],
                 (err, results) => {
-                    if (err) reject(err.message);
+                    if (err) return reject(err.message);
                     this.GuildsCache.set(guildID, results[1][0]);
                     resolve(results[1][0]);
                 }
@@ -80,19 +80,6 @@ export default class GuildHandler {
         })
     }
 
-
-    /**
-     * Get specific guild from GuildsCache map
-     */
-    // getGuild(guildId: string): Promise<guild> {
-    //     return new Promise(async resolve => {
-    //         let thisGuild: guild = this.GuildsCache.get(guildId);
-    //         if (!thisGuild) {
-    //             await this.insertGuild(guildId).catch(() => {})
-    //         }
-    //         resolve(thisGuild);
-    //     })
-    // }
 
     /**
      * 
@@ -117,12 +104,12 @@ export default class GuildHandler {
      * called when a admin enables welcome / leave messages within
      * their discord server.
      */
-    updateWelcomeMessageId(guildID: string, channelID: string | boolean) {
+    updateWelcomeMessageSettings(guildID: string, channelID: string | boolean, welcomeMsg: string|null) {
         return new Promise(async (resolve, reject) => {
             if (!this.GuildsCache.has(guildID)) await this.insertGuild(guildID);
             db.query(
-                "USE discord; UPDATE guilds SET welcome_c_id = ? WHERE guildID = ?",
-                [channelID === false ? null : channelID, guildID],
+                "USE discord; UPDATE guilds SET welcome_c_id = ?, welcome_msg = ? WHERE guildID = ?",
+                [channelID === false ? null : channelID, welcomeMsg, guildID],
                 async err => {
                     if (err) return reject(err.message)
                     await this.updateGuildsCache(guildID).catch(() => {});
@@ -177,24 +164,31 @@ export default class GuildHandler {
         return true;
     }
 
-    liftSentence = async (guildId: string, userId: string, type: string) => {
-        try {
-            const guild = await this.client.guilds.fetch(guildId);
-            switch (type) {
+    liftSentence (guildId: string, userId: string, type: string) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const guild = await this.client.guilds.fetch(guildId);
+                switch (type) {
+    
+                    case "mute":
+                        const member = await guild.members.fetch(userId);
+                        await member.timeout(null);
+                        await member.send(`> ${this.client.Iemojis.success} Your **Timeout** has expired in the guild **${guild.name}** `).catch(() => { });
+                        return resolve(true);
 
-                case "mute":
-                    const member = await guild.members.fetch(userId);
-                    await member.timeout(null);
-                    return await member.send(`> ${this.client.Iemojis.success} Your **Timeout** has expired in the guild **${guild.name}** `).catch(() => { });
-
-                case "ban":
-                    await guild.members.unban(userId).catch(() => { });
-                    db.query("USE discord; DELETE FROM banned WHERE guildID = ? AND bannedID = ?", [guildId, userId]);
-                    return;
+                    case "ban":
+                        await guild.members.unban(userId);
+                        db.query("USE discord; DELETE FROM banned WHERE guildID = ? AND bannedID = ?", [guildId, userId]);
+                        return resolve(true);
+                }
+    
             }
+            catch (error) { 
+                logger.Error(`Error while trying to lift sentence (${type}) for userId: ${userId} | guildId: ${guildId} `)
+                return reject(error);
+            };
+         })
 
-        }
-        catch { logger.liftSentence(guildId, userId) };
     }
 
     /**
@@ -209,11 +203,12 @@ export default class GuildHandler {
                 SELECT guildID, bannedID, userBanned, guildName, duration FROM banned;
                 `,
                 async (err, results) => {
-                    if (err) throw new Error(err.message);
+                    if (err) return logger.Error("Error while checking Sentence times. Trace: " + err.message);
                     const bannedUsers = results[1];
                     for (const user of bannedUsers) {
                         if (user.duration === null || !this.timesUp(user.duration) || !user) return;
-                        this.liftSentence(user.guildID, user.bannedID, "ban")
+                        await this.liftSentence(user.guildID, user.bannedID, "ban")
+                        .catch(error => logger.Error(`I was not able to unban userId: ${user.bannedID} | guildId: ${user.guildID} | Trace: ${error}`));
                     }
                 }
             )
@@ -258,7 +253,8 @@ export default class GuildHandler {
                                 resolve(true);
                             }
                         )
-                        : db.query(`USE discord; UPDATE users SET ${type} = ${type} + 1 WHERE user_id = ? AND guild_id = ?`,
+                        : db.query(
+                            `USE discord; UPDATE users SET ${type} = ${type} + 1 WHERE user_id = ? AND guild_id = ?`,
                             [userId, guildId],
                             err => {
                                 if (err) return reject(err.message);

@@ -17,13 +17,13 @@ export default {
         
         const userEmbed = (member: GuildMember, userHistory?: Array<UserHistory>|any[]) => {
             const userStat = userHistory.length === 0
-            ? { bans: 0, muted: 0, warns: 0 }
-            : { bans: userHistory[0].bans, muted: userHistory[0].muted, warns: userHistory[0].warns }
+            ? { bans: 0, muted: 0, warns: 0, kicks: 0 }
+            : { bans: userHistory[0].bans, muted: userHistory[0].muted, warns: userHistory[0].warns, kicks: userHistory[0].kicks }
                         
             return {
                 color: colors.colors.filter(({ gray }) => gray)[0].gray,
                 author: {
-                    name: `Information about ${member.user.username}#${member.user.discriminator}`,
+                    name: `Information about ${member.user.tag}`,
                     icon_url: `${member.displayAvatarURL({ format: 'png' })}`,
                 },
                 fields: [
@@ -39,7 +39,7 @@ export default {
                     },
                     isMod ? {
                         name: "History",
-                        value: `> **Warnings:** ${userStat.warns} \n> **Bans:** ${userStat.bans} \n> **Times muted:** ${userStat.muted}`,
+                        value: `> **Warnings:** ${userStat.warns} \n> **Times Banned:** ${userStat.bans} \n> **Times muted:** ${userStat.muted} \n> **Times kicked:** ${userStat.kicks}`,
                         inline: false
                     } 
                     : {

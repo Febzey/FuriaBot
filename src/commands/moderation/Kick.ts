@@ -23,8 +23,12 @@ export default {
 
         try {
             
-            //await member.kick();
-            
+            await member.kick();
+
+            await client.guildHandler.updateUser(member.guild.id, member.user.id, "kicks")
+            .catch(error => logger.Error(`Error while trying to update user row: ${member.user.id} (${user.tag}). Trace: ${error}`))
+
+
             interaction.reply({
                 content: `${client.Iemojis.kick} <@${member.id}> has been **Kicked** ${reason ? `\`reason:\` ${reason}.` : ""}`,
                 ephemeral: silent === "true" ? true : false

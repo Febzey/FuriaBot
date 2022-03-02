@@ -15,7 +15,7 @@ export async function antiSpam(
         
     const messageCount = user.messages;
 
-        if (messageCount === 5) {
+        if (messageCount === 6) {
             channel.send(`> <@${member.id}> Please do not spam.`)
                 .then(msg => setTimeout(() => { msg.delete() }, 10000));
         }
