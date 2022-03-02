@@ -61,9 +61,9 @@ export default {
                 > *option* - either disable or enable welcome messages.           
                 > *channel* - select a channel for me to welcome users in.
                 > *welcome message* - set a message that the user will see when they join.
-                > **You can Tag the user by putting \`@\` anywhere in the message.**
-                > **You can link a channel by doing <#CHANNEL-ID>**
-                > Example: \`Welcome to the server @, consider checking out <#9391824385>\`
+                > **You can Tag the user by putting \`<@>\` anywhere in the message.**
+                > **You can link a channel by doing <CHANNEL-ID>**
+                > Example: \`Welcome to the server <@>, consider checking out <9391824385>\`
                 \u200b
                 **Enable/Disable auto anti-spam**
                 > \`\`\`/config toggle antispam <option>  \`\`\`

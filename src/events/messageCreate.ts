@@ -1,8 +1,7 @@
-import type { Message, GuildMember }  from 'discord.js';
+import type { Message }               from 'discord.js';
 import type FuriaBot                  from '../struct/discord/client.js';
 import { ownerID }                    from '../struct/config.js';
 import { antiSpam }                   from '../functions/moderate/antispam.js';
-import { convertWelcomeMessageString} from '../util/convertString.js';
 /**
  * Users who spam will be placed into the set.
  */
@@ -19,11 +18,6 @@ export default {
         if (channel.type === "DM") {
             return client.users.fetch(ownerID).then(user => user.send(`${content} | **Sent by: ${author.tag}**`));
         }
-
-        // if (content === "reg") {
-        //     const welcomeMsg = convertWelcomeMessageString("okay <@> this <#>  is a  text", message.member)
-        //     return console.log(txt)
-        // }
 
         let currentGuild = client.guildHandler.GuildsCache.get(member.guild.id);
 
