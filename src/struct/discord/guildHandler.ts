@@ -1,8 +1,13 @@
-import { monthYear }               from '../../util/time/time.js';
-import { db, logger }              from '../../index.js';
-import type { guild, UserHistory } from '../../../index';
-import type FuriaBot               from './client.js';
-import type { ActivityOptions }    from 'discord.js';
+import type { guild, 
+    UserHistory, 
+    reminderArgs,
+    Reminder,
+    removeReminder
+   }                                             from '../../../index';
+import { monthYear }                             from '../../util/time/time.js';
+import { db, logger }                            from '../../index.js';
+import type FuriaBot                             from './client.js';
+import type { ActivityOptions }                  from 'discord.js';
 
 export default class GuildHandler {
     public GuildsCache: Map<string, guild>;
@@ -159,10 +164,6 @@ export default class GuildHandler {
     }
 
 
-    timesUp = (duration: number) => {
-        if (Date.now() / 1000 < duration) return false;
-        return true;
-    }
 
     liftSentence (guildId: string, userId: string, type: string) {
         return new Promise(async (resolve, reject) => {
@@ -189,30 +190,6 @@ export default class GuildHandler {
             };
          })
 
-    }
-
-    /**
-     * Handle check ban time,
-     * this will run on an interval.
-     */
-    handleTimes() {
-        setInterval(() => {
-            db.query(
-                `
-                USE discord; 
-                SELECT guildID, bannedID, userBanned, guildName, duration FROM banned;
-                `,
-                async (err, results) => {
-                    if (err) return logger.Error("Error while checking Sentence times. Trace: " + err.message);
-                    const bannedUsers = results[1];
-                    for (const user of bannedUsers) {
-                        if (user.duration === null || !this.timesUp(user.duration) || !user) return;
-                        await this.liftSentence(user.guildID, user.bannedID, "ban")
-                        .catch(error => logger.Error(`I was not able to unban userId: ${user.bannedID} | guildId: ${user.guildID} | Trace: ${error}`));
-                    }
-                }
-            )
-        }, 10000);
     }
 
     /**
@@ -292,6 +269,104 @@ export default class GuildHandler {
         
         return;
    
+    }
+
+    timesUp = (duration: number) => {
+        if (Date.now() / 1000 < duration) return false;
+        return true;
+    }
+
+    /**
+     * Handle check ban time,
+     * this will run on an interval.
+     */
+    handleTimes() { 
+        const handleReminderTime = (reminders: any) => {
+            for (const reminder of reminders) {
+                if (this.timesUp(reminder.duration)) {
+                return this.remindUser(reminder);
+                }
+            }
+        }
+
+        const handleBanTime = async (bannedUsers:any) => {
+            for (const user of bannedUsers) {
+                if (user.duration !== null || this.timesUp(user.duration) || user) {
+                    await this.liftSentence(user.guildID, user.bannedID, "ban")
+                    .catch(() => { });
+                }
+            }
+        }
+
+        setInterval(() => {
+            db.query(
+                `
+                    USE discord; 
+                    SELECT guildID, bannedID, userBanned, guildName, duration FROM banned;
+                    SELECT * FROM reminders;
+                    `,
+                async (err, results) => {
+                    if (err) return logger.Error("Error while checking Sentence times. Trace: " + err.message);
+                    const bannedUsers = results[1];
+                    const reminders   = results[2];
+
+                    handleBanTime(bannedUsers);
+                    handleReminderTime(reminders);
+
+                }
+            )
+        }, 5000);
+    }
+
+    removeReminder = (args: removeReminder) => new Promise((resolve, reject) => {
+        db.query(
+            "USE discord; DELETE from reminders WHERE user_id = ? AND id = ?",
+            [args.user_id, args.id],
+            (err, results) => {
+                if (err) return reject(err.message);
+                resolve(results[1]);
+            }
+        )
+
+    })
+
+    setReminder = (args: reminderArgs) => new Promise((resolve, reject) => {
+        db.query(
+            "USE discord;INSERT IGNORE INTO reminders (user_id, guild_id, text, duration, channel_id) VALUES(?,?,?,?,?)",
+            [args.user_id, args.guild_id, args.text, args.duration, args.channel_id],
+            (err, results) => {
+                if (err) return reject(err.message);
+                return resolve(results[1].insertId);
+            }
+        )
+    });
+
+    remindUser = async (reminder: Reminder) => {
+        try {
+            const guild = await this.client.guilds.fetch(reminder.guild_id);
+            const member = await guild.members.fetch(reminder.user_id);
+
+            try {
+                await member.send(`> **Hey!**  Remember that thing?? \n\n> \`\`${reminder.text}\`\``)
+                return this.removeReminder({
+                    user_id: reminder.user_id,
+                    id: reminder.id
+                })
+            }
+            catch {
+                const channel = guild.channels.cache.find(channel => channel.id === reminder.channel_id);
+                if (!channel || channel.type !== "GUILD_TEXT") return;
+               
+                channel.send(`> **Hey! Remember that thing?? \n\n>\`${reminder.text}\`**`)
+               
+                return this.removeReminder({
+                    user_id: reminder.user_id,
+                    id: reminder.id
+                })
+            }
+
+        }
+        catch { return };
     }
 
 }

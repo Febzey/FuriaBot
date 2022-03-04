@@ -29,3 +29,25 @@ export type UserHistory = {
     bans:       number, 
     muted:      number
 }
+
+export type reminderArgs = {
+    user_id:    string,
+    guild_id:   string,
+    text:       string,
+    duration:   number,
+    channel_id: string
+}
+
+export type Reminder = {
+    user_id:    string,
+    guild_id:   string,
+    text:       string,
+    duration:   number,
+    channel_id: string
+    id:         number
+}
+
+export type removeReminder = {
+    user_id: string,
+    id:      number
+}
