@@ -81,6 +81,6 @@ export default class FuriaBot extends Client {
         const botID = this.user.id
     
         await rest.put(Routes.applicationGuildCommands(botID, rootGuildID), { body: this.commands }).catch(console.error);
-        loadCommandsBoolean && await rest.put(Routes.applicationCommands(botID), { body: [] }).catch(console.error);
+        loadCommandsBoolean && await rest.put(Routes.applicationCommands(botID), { body: this.commands }).catch(console.error);
     };
 };
