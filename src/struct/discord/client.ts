@@ -66,7 +66,6 @@ export default class FuriaBot extends Client {
         const command = dir ? await import(`../../commands/${dir}/${file}`) : await import(`../../commands/${file}`)        
         this.commands.push(command.default.data);
         this.commandCollection.set(command.default.data.name, command);
-    
     };
     
     public async loadCommands() {
