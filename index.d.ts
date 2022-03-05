@@ -61,3 +61,18 @@ export type unBanArgs = {
 }
 
 export type unMuteArgs = unBanArgs;
+
+export type warnUserArgs = {
+    member:     GuildMember,
+    actionBy:   string,
+    reason:     string,
+    channel_id: string
+}
+
+export type banUserArgs = { 
+    member:         GuildMember,
+    actionBy:       string,
+    reason:         string,
+    duration:       number|false,
+    durationString: string
+}

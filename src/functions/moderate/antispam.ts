@@ -6,7 +6,27 @@ export async function antiSpam(
     message: Message,
     client: FuriaBot,
 ) {
-    const { member, channel } = message;
+    const { member, channel, content } = message;
+
+    const userMentionRegex = /(@![a-z\d]+)/;
+
+    if (message.mentions.users.size) {
+
+        const contentSplit = content.split(" ");
+
+        let mentionCount = 0;
+
+        for (const word of contentSplit) {
+            if (word.match(userMentionRegex)) mentionCount ++;
+        }
+        
+        if (mentionCount > 5) {
+            message.delete();
+            channel.send(`> <@${member.id}> Do not mention that many users.`) 
+            .then(msg => setTimeout(() => {msg.delete()}, 15000));
+        }
+
+    }
 
     !map.has(member.id) && map.set(member.id, { messages: 0 });
     map.set(member.id, { messages: map.get(member.id).messages + 1 })

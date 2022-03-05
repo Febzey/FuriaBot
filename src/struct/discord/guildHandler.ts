@@ -4,7 +4,9 @@ import type { guild,
     Reminder,
     removeReminder,
     unMuteArgs,
-    unBanArgs
+    unBanArgs,
+    warnUserArgs,
+    banUserArgs
    }                                             from '../../../index';
 import { monthYear }                             from '../../util/time/time.js';
 import { db, logger }                            from '../../index.js';
@@ -197,6 +199,83 @@ export default class GuildHandler {
             return reject(err);
         }
 
+    })
+
+    /**
+     * Banning a user.
+     */
+    banUser = (args: banUserArgs) => new Promise(async (resolve, reject) => {
+        const { member, actionBy, reason, duration, durationString } = args;
+        try {
+
+            await member.send(`You have been **${!duration ? "Permanently ":""}Banned** in **${member.guild.name}**. \`Reason:\` ${reason ? reason : "No reason specified."} ${durationString ? `\`Duration:\` ${durationString}` :""}`)
+            .catch(() => { });
+
+            await member.ban();
+            await this.client.Logger.bannedUser(member, actionBy, reason, durationString);
+            return db.query(
+                `
+                USE discord;
+                INSERT IGNORE INTO banned (guildID,bannedID,bannedBy,reason,duration) VALUES(?,?,?,?,?);
+                UPDATE users SET bans = bans + 1 WHERE user_id = ? AND guild_id = ?;
+                `,
+                [
+                    member.guild.id, 
+                    member.user.id, 
+                    actionBy, 
+                    reason, 
+                    duration ? duration / 1000 : null,
+                    member.user.id,
+                    member.guild.id
+                ],
+                err => {
+                    if (err) return reject(err.message);
+                    return resolve(true);
+                }
+            )
+        } catch (err) {
+            logger.Error(`Error while trying to ban user: ${member.user.tag} (${member.user.id}) in guild: ${member.guild.name} (${member.guild.id})`) 
+            return reject(err);
+        }
+    })
+
+    /**
+     * Warning a user.
+     */
+    warnUser = (args: warnUserArgs) => new Promise(async (resolve, reject) => {
+        const { member, actionBy, reason, channel_id } = args;
+        const warnMessage: string = `> You have been **Warned** in **${member.guild.name}** \`Reason:\` ${reason}`
+        try {
+            await member.send(warnMessage)
+            .catch(async () => {
+                const channel = await member.guild.channels.fetch(channel_id);
+                channel.type === "GUILD_TEXT" && channel.send(warnMessage);
+            })
+
+            await this.client.Logger.warnedUser(member, actionBy, reason);
+
+            return db.query(
+                `
+                USE discord; 
+                INSERT IGNORE INTO users (guild_id, user_id) VALUES (?,?);
+                UPDATE users SET warns = warns + 1 WHERE user_id = ? AND guild_id = ?;
+                `,
+                [
+                    member.guild.id, 
+                    member.user.id, 
+                    member.user.id, 
+                    member.guild.id
+                ],
+                err => {
+                    if (err) return reject(err.message);
+                    this.atMaxWarnings(member.guild.id, member.user.id);
+                    resolve(true)
+                }
+            )
+
+        } catch(err) {
+            return reject(err);
+        }
     })
 
     /**
