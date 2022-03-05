@@ -50,4 +50,14 @@ export type Reminder = {
 export type removeReminder = {
     user_id: string,
     id:      number
+};
+
+
+export type unBanArgs = { 
+    user_id:  string, 
+    guild_id: string, 
+    actionBy: string, 
+    reason:   string 
 }
+
+export type unMuteArgs = unBanArgs;

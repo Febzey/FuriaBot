@@ -28,7 +28,7 @@ export default {
             await user.send(`> ${client.Iemojis.hammer} You have been ${banIsPermanent ? "**Permanently**" : ""} **Banned** from the guild **${member.guild.name}** ${reason ? `\`reason:\` ${reason}.` : ""} ${!banIsPermanent ? `\`Duration\`: ${durationChoice}` : ""}`)
             .catch(() => logger.Warn(`Failed to send message to user: ${user.tag}`))
            
-            await member.ban();
+            //await member.ban();
 
             db.query(
                 `USE discord; 
@@ -57,9 +57,7 @@ export default {
             })
 
             await client.Logger.bannedUser(member, `${interaction.user.tag}`, reason, durationChoice);
-
             return
-
         }
 
         catch (err) { 

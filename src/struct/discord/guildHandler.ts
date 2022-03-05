@@ -2,12 +2,14 @@ import type { guild,
     UserHistory, 
     reminderArgs,
     Reminder,
-    removeReminder
+    removeReminder,
+    unMuteArgs,
+    unBanArgs
    }                                             from '../../../index';
 import { monthYear }                             from '../../util/time/time.js';
 import { db, logger }                            from '../../index.js';
 import type FuriaBot                             from './client.js';
-import type { ActivityOptions }                  from 'discord.js';
+import type { ActivityOptions, Guild }           from 'discord.js';
 
 export default class GuildHandler {
     public GuildsCache: Map<string, guild>;
@@ -85,7 +87,6 @@ export default class GuildHandler {
         })
     }
 
-
     /**
      * 
      * Checking if the guild exists in the database
@@ -123,7 +124,6 @@ export default class GuildHandler {
             )
         })
     }
-
 
     /**
      * Enabling or disabling anti spam within a guild.
@@ -163,34 +163,41 @@ export default class GuildHandler {
 
     }
 
+    /**
+     * Unbanning a user.
+     */
+    unBan = (args: unBanArgs) => new Promise(async (resolve, reject) => {
+        const { user_id, guild_id, actionBy, reason } = args;
+        try {
+            const guild = await this.client.guilds.fetch(guild_id);
+            db.query("USE discord; DELETE FROM banned WHERE guildID = ? AND bannedID = ?", [guild.id, user_id]);
+            await guild.members.unban(user_id);
+            await this.client.Logger.unbanUser(await guild.members.fetch(user_id), actionBy, reason);
+            return resolve(true);
+        } catch (error) {
+            logger.Error(`Error while trying to unban user_id: ${user_id} | guildId: ${guild_id} `)
+            return reject(error);
+        }
+    })
 
+    /**
+     * Unmuting a user.
+     */
+    unMute = (args: unMuteArgs) => new Promise(async (resolve, reject) => {
+        const { user_id, guild_id, actionBy, reason } = args;
+        try {
+            const guild = await this.client.guilds.fetch(guild_id)
+            const member = await guild.members.fetch(user_id);
+            await member.timeout(null);
+            await this.client.Logger.unMuteUser(member, actionBy, reason)
+            await member.send(`> ${this.client.Iemojis.success} Your **Timeout** has expired in the guild **${guild.name}** `).catch(() => { });
+            return resolve(true);
+        } catch (err) {
+            logger.Error(`Error while trying to unmute user_id: ${user_id} | guildId: ${guild_id} `)
+            return reject(err);
+        }
 
-    liftSentence (guildId: string, userId: string, type: string) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                const guild = await this.client.guilds.fetch(guildId);
-                switch (type) {
-    
-                    case "mute":
-                        const member = await guild.members.fetch(userId);
-                        await member.timeout(null);
-                        await member.send(`> ${this.client.Iemojis.success} Your **Timeout** has expired in the guild **${guild.name}** `).catch(() => { });
-                        return resolve(true);
-
-                    case "ban":
-                        await guild.members.unban(userId);
-                        db.query("USE discord; DELETE FROM banned WHERE guildID = ? AND bannedID = ?", [guildId, userId]);
-                        return resolve(true);
-                }
-    
-            }
-            catch (error) { 
-                logger.Error(`Error while trying to lift sentence (${type}) for userId: ${userId} | guildId: ${guildId} `)
-                return reject(error);
-            };
-         })
-
-    }
+    })
 
     /**
      * Getting user row from users table.
@@ -292,7 +299,12 @@ export default class GuildHandler {
         const handleBanTime = async (bannedUsers:any) => {
             for (const user of bannedUsers) {
                 if (user.duration !== null || this.timesUp(user.duration) || user) {
-                    await this.liftSentence(user.guildID, user.bannedID, "ban")
+                    this.unBan({ 
+                        user_id:  user.bannedID, 
+                        guild_id: user.guildID, 
+                        actionBy: this.client.user.tag, 
+                        reason:   "Automatic Unban" 
+                    })
                     .catch(() => { });
                 }
             }
@@ -307,6 +319,7 @@ export default class GuildHandler {
                     `,
                 async (err, results) => {
                     if (err) return logger.Error("Error while checking Sentence times. Trace: " + err.message);
+                    
                     const bannedUsers = results[1];
                     const reminders   = results[2];
 

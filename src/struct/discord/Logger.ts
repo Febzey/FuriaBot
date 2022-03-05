@@ -101,6 +101,46 @@ export default class ModActionLogger {
         })
     }
 
+    unbanUser = async (member: GuildMember, actionBy: string, reason?: string) => {
+        const channel = await this.getLogChannel(member.guild.id);
+        if (!channel) return;
+        return await channel.send({
+            embeds: [{
+                color: colors.colors.filter(({ Green }) => Green)[0].Green,
+                title: `User Unbanned. ${this.client.Iemojis.success}`,
+                description: `
 
+                > **User** *${member.user.username}#${member.user.discriminator}* has been unbanned.
+                > **Reason:** ${reason}
+                > **Action by:** ${actionBy}
+                `,
+                timestamp: new Date,
+                footer: {
+                    text: `ID: ${member.id}`
+                 }
+            }],
+        })
+    }
+
+    unMuteUser = async (member: GuildMember, actionBy: string, reason?: string) => {
+        const channel = await this.getLogChannel(member.guild.id);
+        if (!channel) return;
+        return await channel.send({
+            embeds: [{
+                color: colors.colors.filter(({ Green }) => Green)[0].Green,
+                title: `User unmuted. ${this.client.Iemojis.success}`,
+                description: `
+
+                > **User** *${member.user.username}#${member.user.discriminator}* has been unmuted.
+                > **Reason:** ${reason}
+                > **Action by:** ${actionBy}
+                `,
+                timestamp: new Date,
+                footer: {
+                    text: `ID: ${member.id}`
+                 }
+            }],
+        })
+    }
 
 }

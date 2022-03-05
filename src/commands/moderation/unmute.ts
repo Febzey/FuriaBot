@@ -13,8 +13,16 @@ export default {
         try { member = await interaction.guild.members.fetch(interaction.options.getUser("user")) }
         catch { return client.ErrorHandler.userNotInGuild(interaction) }
 
-        try {
-            await client.guildHandler.liftSentence(member.guild.id, member.user.id, "mute")
+        try {            
+            const unMuteArgs = {
+                guild_id: member.guild.id,
+                user_id:  member.user.id,
+                actionBy: interaction.user.tag,
+                reason:   "Manual unmute."
+            }
+
+            await client.guildHandler.unMute(unMuteArgs)
+            
             return interaction.reply({
                 content: `> ${client.Iemojis.success} lifted **timeout** for <@${member.id}>`,
                 ephemeral: true
