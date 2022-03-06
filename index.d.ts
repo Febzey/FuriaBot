@@ -82,3 +82,11 @@ export type banUserArgs = {
     duration:       number|false,
     durationString: string
 }
+
+export type muteUserArgs = {
+    member:         GuildMember,
+    actionBy:       string,
+    reason:         string,
+    duration:       number,
+    durationString: string
+}

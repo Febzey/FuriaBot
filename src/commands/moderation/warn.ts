@@ -22,7 +22,7 @@ export default {
         }
 
         try {
-            await client.guildHandler.warnUser(warnArgs);
+            await client.guildHandler.Moderation.warnUser(warnArgs);
 
             return interaction.reply({
                 content: `> ${client.Iemojis.success} ${user.username}#${user.discriminator} has been warned.`,

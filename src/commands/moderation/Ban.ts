@@ -34,7 +34,7 @@ export default {
                 durationString: durationChoice 
             }
 
-            await client.guildHandler.banUser(banUserArgs);
+            await client.guildHandler.Moderation.banUser(banUserArgs);
 
             await interaction.reply({
                 content: `> ${client.Iemojis.hammer} <@${user.id}> has been ${banIsPermanent ? "**Permanently**": ""} **Banned** ${reason ? `\`reason:\` ${reason}.` : ""} ${!banIsPermanent ? `\`Duration\`: ${durationChoice}`:""}`,

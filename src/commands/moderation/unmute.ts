@@ -21,7 +21,7 @@ export default {
                 reason:   "Manual unmute."
             }
 
-            await client.guildHandler.unMute(unMuteArgs)
+            await client.guildHandler.Moderation.unMute(unMuteArgs)
             
             return interaction.reply({
                 content: `> ${client.Iemojis.success} lifted **timeout** for <@${member.id}>`,

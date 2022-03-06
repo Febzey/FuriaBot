@@ -1,6 +1,6 @@
 import { en_text }                              from '../../struct/config.js';
 import type { CommandInteraction, GuildMember } from 'discord.js';
-import { convertTimeString }                        from '../../util/time/convertTime.js';
+import { convertTimeString }                    from '../../util/time/convertTime.js';
 import type FuriaBot                            from '../../struct/discord/client.js';
 import { logger }                               from '../../index.js';
 
@@ -21,22 +21,18 @@ export default {
             let muteTime = await convertTimeString(duration);
                 muteTime = muteTime * 1000;
             
-            await member.timeout(muteTime, reason ? reason : "No reason specified")
-            
-            await member.send(`> ${client.Iemojis.mute} You have been put on **timeout** in the guild **${member.guild.name}** ${reason ? `\`reason:\` ${reason}.` : ""} ${duration ? `\`duration:\` ${duration}` : ""}`)
-            .catch(() => logger.Warn(`Failed to send message to user: ${member.user.tag}`));
+            await client.guildHandler.Moderation.muteUser({
+                member:         member,
+                actionBy:       interaction.user.tag,
+                reason:         reason,
+                duration:       muteTime,
+                durationString: duration
+            })
 
-            await client.guildHandler.updateUser(member.guild.id, member.user.id, "muted")
-            .catch(error => logger.Error(`Error while trying to update user row: ${member.user.id} (${member.user.tag}). Trace: ${error}`))
-
-            await interaction.reply({
+            return await interaction.reply({
                 content: `> ${client.Iemojis.mute} <@${member.id}> has been **muted** ${reason ? `\`reason:\` ${reason}.` : ""} ${duration ? `\`duration:\` ${duration}` : ""}`,
                 ephemeral: silent === "true" ? true : false
             })
-
-            await client.Logger.mutedUser(member, `${interaction.user.tag}`, reason, duration);
-            
-            return;
 
         }
 

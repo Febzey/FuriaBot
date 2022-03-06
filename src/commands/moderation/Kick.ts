@@ -20,7 +20,7 @@ export default {
 
         try {
             
-            await client.guildHandler.kickUser({
+            await client.guildHandler.Moderation.kickUser({
                 member:   member,
                 actionBy: interaction.user.tag,
                 reason:   reason

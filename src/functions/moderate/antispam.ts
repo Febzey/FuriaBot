@@ -26,7 +26,7 @@ export async function antiSpam(
     if (content.length > 1000) { 
         message.delete();
         channel.send(`> ${client.Iemojis.warning} Do not send messages this long.`);
-        await client.guildHandler.warnUser({
+        await client.guildHandler.Moderation.warnUser({
             member:     member,
             actionBy:   client.user.tag,
             reason:     "Auto warn - Too long of message",
@@ -49,7 +49,7 @@ export async function antiSpam(
             message.delete();
 
             channel.send(`> <@${member.id}> Do not mention that many users.`).then(msg => setTimeout(() => {msg.delete()}, 15000));
-            await client.guildHandler.warnUser({
+            await client.guildHandler.Moderation.warnUser({
                 member:     member,
                 actionBy:   client.user.tag,
                 reason:     "Auto warn - Mass Mention",
@@ -67,7 +67,7 @@ export async function antiSpam(
     }
 
     if (messageCount === 8) {
-        await client.guildHandler.warnUser({
+        await client.guildHandler.Moderation.warnUser({
             member: member,
             actionBy: client.user.tag,
             reason: "Auto warn - Spamming",
