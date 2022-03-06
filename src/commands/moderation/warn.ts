@@ -14,15 +14,13 @@ export default {
         try { member = await interaction.guild.members.fetch(user.id) }
         catch { return client.ErrorHandler.userNotInGuild(interaction) }
 
-        const warnArgs = {
-            member:     member,
-            actionBy:   interaction.user.tag,
-            reason:     reason,
-            channel_id: interaction.channel.id
-        }
-
         try {
-            await client.guildHandler.Moderation.warnUser(warnArgs);
+            await client.guildHandler.Moderation.warnUser({
+                member:     member,
+                actionBy:   interaction.user.tag,
+                reason:     reason,
+                channel_id: interaction.channel.id
+            });
 
             return interaction.reply({
                 content: `> ${client.Iemojis.success} ${user.username}#${user.discriminator} has been warned.`,

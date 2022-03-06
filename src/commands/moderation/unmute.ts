@@ -14,14 +14,13 @@ export default {
         catch { return client.ErrorHandler.userNotInGuild(interaction) }
 
         try {            
-            const unMuteArgs = {
+
+            await client.guildHandler.Moderation.unMute({
                 guild_id: member.guild.id,
                 user_id:  member.user.id,
                 actionBy: interaction.user.tag,
                 reason:   "Manual unmute."
-            }
-
-            await client.guildHandler.Moderation.unMute(unMuteArgs)
+            })
             
             return interaction.reply({
                 content: `> ${client.Iemojis.success} lifted **timeout** for <@${member.id}>`,

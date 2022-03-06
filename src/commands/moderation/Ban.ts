@@ -26,15 +26,13 @@ export default {
                                            ? await convertTimeString(durationChoice) * 1000 + Date.now() 
                                            : false
 
-            const banUserArgs = {
+            await client.guildHandler.Moderation.banUser({
                 member:         member,
                 actionBy:       interaction.user.tag,
                 reason:         reason, 
                 duration:       duration,
                 durationString: durationChoice 
-            }
-
-            await client.guildHandler.Moderation.banUser(banUserArgs);
+            });
 
             await interaction.reply({
                 content: `> ${client.Iemojis.hammer} <@${user.id}> has been ${banIsPermanent ? "**Permanently**": ""} **Banned** ${reason ? `\`reason:\` ${reason}.` : ""} ${!banIsPermanent ? `\`Duration\`: ${durationChoice}`:""}`,
