@@ -1,13 +1,14 @@
-import type FuriaBot from './client';
-import { db, logger } from '../../index.js';
-import type { guild, 
+import type { 
     unMuteArgs,
     unBanArgs,
     warnUserArgs,
     banUserArgs,
     kickUserArgs,
     muteUserArgs
-   }  from '../../../index';
+   }                  from '../../../index';
+import type FuriaBot  from './client';
+import { db, logger } from '../../index.js';
+
 
 export default class ModerationHandler {
     constructor(public client: FuriaBot) { }

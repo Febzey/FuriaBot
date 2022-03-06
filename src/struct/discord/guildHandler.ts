@@ -2,13 +2,7 @@ import type { guild,
     UserHistory, 
     reminderArgs,
     Reminder,
-    removeReminder,
-    unMuteArgs,
-    unBanArgs,
-    warnUserArgs,
-    banUserArgs,
-    kickUserArgs,
-    muteUserArgs
+    removeReminder
    }                                             from '../../../index';
 import { monthYear }                             from '../../util/time/time.js';
 import { db, logger }                            from '../../index.js';
