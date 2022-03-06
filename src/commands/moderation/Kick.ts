@@ -18,24 +18,18 @@ export default {
 
         if (!member.kickable) return client.ErrorHandler.kick(interaction)
 
-        await user.send(`> ${client.Iemojis.kick} You have been **Kicked** from the guild **${interaction.guild.name}** ${reason ? `\`reason:\` ${reason}` : ""}`)
-        .catch(() => logger.Warn(`Failed to send message to user: ${user.tag}`))
-
         try {
             
-            await member.kick();
+            await client.guildHandler.kickUser({
+                member:   member,
+                actionBy: interaction.user.tag,
+                reason:   reason
+            });
 
-            await client.guildHandler.updateUser(member.guild.id, member.user.id, "kicks")
-            .catch(error => logger.Error(`Error while trying to update user row: ${member.user.id} (${user.tag}). Trace: ${error}`))
-
-
-            interaction.reply({
+            return interaction.reply({
                 content: `${client.Iemojis.kick} <@${member.id}> has been **Kicked** ${reason ? `\`reason:\` ${reason}.` : ""}`,
                 ephemeral: silent === "true" ? true : false
             })
-
-            await client.Logger.kickedUser(member, `${interaction.user.username}#${interaction.user.discriminator}`, reason);
-            return;
         }
 
         catch (error) { 

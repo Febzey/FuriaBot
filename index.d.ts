@@ -69,6 +69,12 @@ export type warnUserArgs = {
     channel_id: string
 }
 
+export type kickUserArgs = {
+    member:     GuildMember,
+    actionBy:   string,
+    reason:     string,
+}
+
 export type banUserArgs = { 
     member:         GuildMember,
     actionBy:       string,

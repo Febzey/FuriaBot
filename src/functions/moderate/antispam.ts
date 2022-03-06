@@ -8,13 +8,38 @@ export async function antiSpam(
 ) {
     const { member, channel, content } = message;
 
+    //if (!member.moderatable) return;
+
+    if (!map.has(member.id)) {
+        map.set(member.id, { messages: 0 })
+    }
+
+    map.set(member.id, { messages: map.get(member.id).messages + 1 })
+    
+    const user             = map.get(member.user.id);
+    const messageCount     = user.messages;
     const userMentionRegex = /(@![a-z\d]+)/;
 
+    /**
+     * Checking if the users message is too long.
+     */
+    if (content.length > 1000) { 
+        message.delete();
+        channel.send(`> ${client.Iemojis.warning} Do not send messages this long.`);
+        await client.guildHandler.warnUser({
+            member:     member,
+            actionBy:   client.user.tag,
+            reason:     "Auto warn - Too long of message",
+            channel_id: channel.id
+        }).catch(() => { });
+    }
+
+    /**
+     * Checking if a user is mass mentioning other users.
+     */
     if (message.mentions.users.size) {
-
-        const contentSplit = content.split(" ");
-
         let mentionCount = 0;
+        const contentSplit = content.split(" ");
 
         for (const word of contentSplit) {
             if (word.match(userMentionRegex)) mentionCount ++;
@@ -22,34 +47,38 @@ export async function antiSpam(
         
         if (mentionCount > 5) {
             message.delete();
-            channel.send(`> <@${member.id}> Do not mention that many users.`) 
-            .then(msg => setTimeout(() => {msg.delete()}, 15000));
+
+            channel.send(`> <@${member.id}> Do not mention that many users.`).then(msg => setTimeout(() => {msg.delete()}, 15000));
+            await client.guildHandler.warnUser({
+                member:     member,
+                actionBy:   client.user.tag,
+                reason:     "Auto warn - Mass Mention",
+                channel_id: channel.id
+            }).catch(() => { });
         }
 
     }
 
-    !map.has(member.id) && map.set(member.id, { messages: 0 });
-    map.set(member.id, { messages: map.get(member.id).messages + 1 })
+    /**
+     * Detecting if a user is spamming.
+     */
+    if (messageCount === 6) {
+        channel.send(`> <@${member.id}> Please do not spam.`).then(msg => setTimeout(() => { msg.delete() }, 10000));
+    }
 
-    const user = map.get(member.user.id);
-        
-    const messageCount = user.messages;
+    if (messageCount === 8) {
+        await client.guildHandler.warnUser({
+            member: member,
+            actionBy: client.user.tag,
+            reason: "Auto warn - Spamming",
+            channel_id: channel.id
+        }).catch(() => { });
 
-        if (messageCount === 6) {
-            channel.send(`> <@${member.id}> Please do not spam.`)
-                .then(msg => setTimeout(() => { msg.delete() }, 10000));
-        }
+        await member.timeout(1 * 60000, "Spamming.")
+        await member.send(`> ${client.Iemojis.mute} You have been put on **timeout** for \`1 minute\` for spamming.`).catch(() => { })
 
-        if (messageCount === 8) {
-            await client.guildHandler.updateUser(member.guild.id, member.user.id, "warns")
-            if (!member.moderatable) return;
-
-            await member.timeout(1 * 60000, "Spamming.")
-            await member.send(`> ${client.Iemojis.mute} You have been put on **timeout** for \`1 minute\` for spamming.`).catch(() => { })
-
-            await client.Logger.mutedUser(member, client.user.tag, "Auto Mute - Spam", "1 minute")
-        }
-    
+        await client.Logger.mutedUser(member, client.user.tag, "Auto Mute - Spam", "1 minute")
+    }
 
     return setTimeout(() => {
         map.delete(member.id);

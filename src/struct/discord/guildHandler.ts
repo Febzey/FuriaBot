@@ -6,7 +6,8 @@ import type { guild,
     unMuteArgs,
     unBanArgs,
     warnUserArgs,
-    banUserArgs
+    banUserArgs,
+    kickUserArgs
    }                                             from '../../../index';
 import { monthYear }                             from '../../util/time/time.js';
 import { db, logger }                            from '../../index.js';
@@ -244,7 +245,7 @@ export default class GuildHandler {
      */
     warnUser = (args: warnUserArgs) => new Promise(async (resolve, reject) => {
         const { member, actionBy, reason, channel_id } = args;
-        const warnMessage: string = `> You have been **Warned** in **${member.guild.name}** \`Reason:\` ${reason}`
+        const warnMessage: string = `> ${this.client.Iemojis.warning} You have been **Warned** in **${member.guild.name}** \`Reason:\` ${reason}`
         try {
             await member.send(warnMessage)
             .catch(async () => {
@@ -273,6 +274,38 @@ export default class GuildHandler {
                 }
             )
 
+        } catch(err) {
+            return reject(err);
+        }
+    })
+
+    /**
+     * Kicking a user.
+     */
+    kickUser = (args: kickUserArgs) => new Promise(async (resolve, reject) => {
+        const { member, actionBy, reason } = args;
+        member.send(`> ${this.client.Iemojis.kick} You have been **Kicked** from **${member.guild.name}**. \`Reason:\` ${reason ? reason : "No reason specified."} `).catch(() => { });
+        try {
+            await member.kick();
+            await this.client.Logger.kickedUser(member, actionBy, reason);
+            return db.query(
+                `
+                USE discord; 
+                INSERT IGNORE INTO users (guild_id, user_id) VALUES (?,?);
+                UPDATE users SET kicks = kicks + 1 WHERE user_id = ? AND guild_id = ?;
+                `,
+                [
+                    member.guild.id, 
+                    member.user.id, 
+                    member.user.id, 
+                    member.guild.id
+                ],
+                err => {
+                    if (err) return reject(err.message);
+                    resolve(true)
+                }
+            )
+            
         } catch(err) {
             return reject(err);
         }
@@ -346,11 +379,7 @@ export default class GuildHandler {
             const guild  = await this.client.guilds.fetch(guildId);
             const member = await guild.members.fetch(userId);
             if (!member.kickable) return;
-            await member.send(`> ${this.client.Iemojis.hammer} You have been **kicked** from the guild **${member.guild.name}** for receiving **${maxWarnCount}/${maxWarnCount}** warnings.`)
-            .catch(() => logger.Warn(`Failed to send message to user: ${member.user.tag}`));
-            await member.kick().catch(() => { });
-            await this.client.Logger.kickedUser(member, this.client.user.tag, "Spamming")
-            return;
+            return this.kickUser({member:member, actionBy:this.client.user.tag, reason: `Auto Kick - Received **${maxWarnCount}/${maxWarnCount}** warnings.`})
         }
         
         return;
