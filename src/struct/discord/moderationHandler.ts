@@ -20,12 +20,13 @@ export default class ModerationHandler {
         const { user_id, guild_id, actionBy, reason } = args;
         try {
             const guild = await this.client.guilds.fetch(guild_id);
+            const user = this.client.users.cache.get(user_id);
             db.query("USE discord; DELETE FROM banned WHERE guildID = ? AND bannedID = ?", [guild.id, user_id]);
             await guild.members.unban(user_id);
-            await this.client.Logger.unbanUser(await guild.members.fetch(user_id), actionBy, reason);
+            await this.client.Logger.unbanUser(user, guild_id, actionBy, reason);
             return resolve(true);
         } catch (error) {
-            logger.Error(`Error while trying to unban user_id: ${user_id} | guildId: ${guild_id} `)
+            logger.Error(`Error while trying to unban user_id: ${user_id} | guildId: ${guild_id} | Trace: ${error} `)
             return reject(error);
         }
     })
@@ -65,6 +66,7 @@ export default class ModerationHandler {
                 `
                 USE discord;
                 INSERT IGNORE INTO banned (guildID,bannedID,bannedBy,reason,duration) VALUES(?,?,?,?,?);
+                INSERT IGNORE INTO users (guild_id, user_id) VALUES (?,?);
                 UPDATE users SET bans = bans + 1 WHERE user_id = ? AND guild_id = ?;
                 `,
                 [
@@ -73,6 +75,8 @@ export default class ModerationHandler {
                     actionBy, 
                     reason, 
                     duration ? duration / 1000 : null,
+                    member.guild.id,
+                    member.user.id,
                     member.user.id,
                     member.guild.id
                 ],

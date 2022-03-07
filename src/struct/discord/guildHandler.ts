@@ -205,7 +205,7 @@ export default class GuildHandler {
 
         const handleBanTime = async (bannedUsers:any) => {
             for (const user of bannedUsers) {
-                if (user.duration !== null || this.timesUp(user.duration) || user) {
+                if ((user && this.timesUp(user.duration)) && user.duration !== null) {
                     this.Moderation.unBan({ 
                         user_id:  user.bannedID, 
                         guild_id: user.guildID, 
@@ -221,7 +221,7 @@ export default class GuildHandler {
             db.query(
                 `
                     USE discord; 
-                    SELECT guildID, bannedID, userBanned, guildName, duration FROM banned;
+                    SELECT * FROM banned;
                     SELECT * FROM reminders;
                     `,
                 async (err, results) => {

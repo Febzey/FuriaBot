@@ -1,5 +1,5 @@
 import type FuriaBot   from "./client";
-import { GuildMember } from "discord.js";
+import { GuildMember, User } from "discord.js";
 import { colors }       from '../../struct/config.js';
 
 export default class ModActionLogger {
@@ -101,8 +101,8 @@ export default class ModActionLogger {
         })
     }
 
-    unbanUser = async (member: GuildMember, actionBy: string, reason?: string) => {
-        const channel = await this.getLogChannel(member.guild.id);
+    unbanUser = async (user: User, guild_id:string, actionBy: string, reason?: string) => {
+        const channel = await this.getLogChannel(guild_id);
         if (!channel) return;
         return await channel.send({
             embeds: [{
@@ -110,13 +110,13 @@ export default class ModActionLogger {
                 title: `User Unbanned. ${this.client.Iemojis.success}`,
                 description: `
 
-                > **User** *${member.user.username}#${member.user.discriminator}* has been unbanned.
+                > **User** *${user.username}#${user.discriminator}* has been unbanned.
                 > **Reason:** ${reason}
                 > **Action by:** ${actionBy}
                 `,
                 timestamp: new Date,
                 footer: {
-                    text: `ID: ${member.id}`
+                    text: `ID: ${user.id}`
                  }
             }],
         })
