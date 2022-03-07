@@ -94,8 +94,7 @@ export default class ModerationHandler {
         const { member, actionBy, reason, channel_id } = args;
         const warnMessage: string = `> ${this.client.Iemojis.warning} You have been **Warned** in **${member.guild.name}** \`Reason:\` ${reason}`
         try {
-            await member.send(warnMessage)
-            .catch(async () => {
+            await member.send(warnMessage).catch(async () => {
                 const channel = await member.guild.channels.fetch(channel_id);
                 channel.type === "GUILD_TEXT" && channel.send(warnMessage);
             })

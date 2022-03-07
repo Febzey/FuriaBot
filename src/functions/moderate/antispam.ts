@@ -8,7 +8,7 @@ export async function antiSpam(
 ) {
     const { member, channel, content } = message;
 
-    //if (!member.moderatable) return;
+    if (!member.moderatable) return;
 
     if (!map.has(member.id)) {
         map.set(member.id, { messages: 0 })

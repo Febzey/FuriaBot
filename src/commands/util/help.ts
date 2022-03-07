@@ -23,12 +23,15 @@ export default {
                 > - Ban members.
                 > - Kick members.
                 > - Mute members.
+                > - Auto Moderation
                 > - basic utility features.
                 > - Keep moderation logs in a channel.
                 \u200b
                 **Auto Moderate**.
                 > - I can auto warn spammers, then eventually mute the user if they continue to spam.
                 > - Detect malicious links and delete them.
+                > - Detect mass mentions.
+                > - Detect spam.
                 > - Feature for auto banning/kicking members if they reach a certain \`warn\` limit.
                 \u200b
                 **Banning a user**
